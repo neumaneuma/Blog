@@ -117,13 +117,13 @@ These represent many of the ways the term "encode" is used across the industry. 
 
 ---
 > ## This file is hex encoded
-A similar phrase to hex encoding is binary encoding. Personally I don't like the use of the term "encoding" here. Technically an argument could be made that the semantics are correct. However I prefer using the term "representation". It makes encoding less of an overloaded definition and does a better job (in my mind at least) of describing what it actually is.
+A similar phrase to hex encoding is binary encoding. Personally I don't like the use of the term "encoding" here. Technically an argument could be made that the semantics are correct. However I prefer using the term "representation". It makes encoding less of an overloaded definition. Also, "representation" does a better job (in my mind at least) of describing what is actually happening.
 
 Hexadecimal (abbreviated as hex) and binary are both numeral systems. That's a fancy way of saying, "here's how to represent a number". If you step back and think about it, numbers are funny things. A number seems pretty straightforward, but it's actually an abstract concept. What is the number for how many fingers you have? You could say it's `00001010`, `10`, or `a` and all three would be accurate! We learn to say `10` because the easiest and most common numeral system for humans is decimal, also known as base-10. We have 10 fingers and 10 toes, so that makes learning how to count far more intuitive when we are infants.
 
-If we instead applied that ease-of-use criteria to computers we would get binary (or base-2). Why? Because computers fundamentally think of things as being ["on" or "off"](https://www.howtogeek.com/367621/what-is-binary-and-why-do-computers-use-it/). Computers rely on electrons having either a positive charge or a negative charge to represent `1`s and `0`s. And it is with these `1`s and `0`s that the fundamentals of computers are accomplished, such as storing data and performing arithmetic calculations.
+If we instead applied that ease-of-use criteria to computers we would get binary (or base-2). Why? Because computers fundamentally think of things as being ["on" or "off"](https://www.howtogeek.com/367621/what-is-binary-and-why-do-computers-use-it/). Computers rely on electrons having either a positive charge or a negative charge to represent `1`s and `0`s. And it is with these `1`s and `0`s that the fundamentals of computers are accomplished, such as storing data or performing mathematical calculations.
 
-Great, so we can represent the same number in multiple ways. What use is that? Well let's refer back to the number ten. We could represent it in binary (`00001010`) or in hex (`a`). It takes eight characters in binary ( or four without the padding of `0`s), but only one in hex! That's due to the number of symbols each use. Binary uses two: `0` and `1`. Hex uses 16: `0`-`9` and `a`-`f`. The difference in representation size was stark enough for just the number ten, but it grows significantly more unequal when using larger numbers. So the advantage is that hex can represent large numbers much more efficiently than binary (and more efficiently than decimal too!).
+Great, so we can represent the same number in multiple ways. What use is that? Let's refer back to the number ten. We could represent it in binary (`00001010`) or in hex (`a`). It takes eight characters in binary (or four without the padding of `0`s), but only one in hex! That's due to the number of symbols each use. Binary uses two: `0` and `1`. Hex uses 16: `0`-`9` and `a`-`f`. The difference in representation size was stark enough for just the number ten, but it grows significantly more unequal when using larger numbers. So the advantage is that hex can represent large numbers much more efficiently than binary (and more efficiently than decimal too for that matter).
 
 Let's explore how to turn this theory into practical knowledge. To provide some examples for this post I created two files via the command line: `file1.txt` and `file2.txt`. Here are their contents outputted:
 ```
@@ -135,7 +135,7 @@ $ cat file2.txt
 abcŔŖ
 ```
 
-Don't worry about the unfamiliar `R` characters at the end of `file2.txt`. I'll go over those details in-depth in the UTF-8 and Unicode sections. Now I will show the binary and hex representations of each file:
+Don't worry about the unfamiliar `R` characters at the end of `file2.txt`. I'll go over those details in-depth in the UTF-8 and Unicode sections. For now I will just show the binary and hex representations of each file:
 ```bash
 $ xxd -b file1.txt # binary
 00000000: 01100001 01100010 01100011 00001010                    abc.
@@ -157,12 +157,8 @@ $ xxd file2.txt # hex
 Again we see the compactness of hex on display. `file1.txt` requires 32 characters to represent in binary, but only 8 in hex. `file2.txt` requires 64 characters to represent in binary, but only 16 in hex. If we were to use a [hex to binary converter](https://www.mathsisfun.com/binary-decimal-hexadecimal-converter.html) we can see how these representations line up with one another.
 
 Let's dissect `file1.txt`:
-| Binary | Hexadecimal | Decimal |
-| :---: |:---:| :---:|
-| `01100001` | `61` | `97` |
-| `01100010` | `62` | `98` |
-| `01100011` | `63` | `99` |
-| `00001010` | `0a` | `10` |
+
+![](table1.jpg)
 
 As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (what's known as bits, `1`s and `0`s, on the computer). The hex and decimal representation are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
 
@@ -174,13 +170,9 @@ Over the years ASCII has more or less become the defacto standard for encoding t
 
 ![](asciitable.jpg)
 
-Here is the mapping of hex to ASCII using the ASCII table
-| Hexadecimal | ASCII |
-| :---: |:---:|
-| `61` | `a` |
-| `62` | `b` |
-| `63` | `c` |
-| `0a` | `LF` |
+Here is the mapping of hex values to their ASCII encodings using the ASCII table:
+
+![](table2.jpg)
 
 We can see `a`, `b`, and `c` there just as we would expect. What is that `LF` doing there at the end though? `LF` is a newline character in Unix (standing for "line feed"). However I didn't press the `Return` key when editing `file1.txt`. There should be no newline there! Actually, newlines are also used to indicate the end of a file (commonly abbreviated as `EOF`). Ubuntu inserted it for me, presumably because of how the [POSIX standard defines a line](https://stackoverflow.com/questions/729692/why-should-text-files-end-with-a-newline).
 
@@ -196,13 +188,13 @@ As anglocentric as programming is, English is not the only language that needs t
 
 The structure of a code point is as follows: `U+` followed by a hex string. The smallest that hex string could be is `0000` and the largest is `10FFFF`. So `U+0000` is the smallest code point (representing the `Null` character) and `U+10FFFF` is the largest code point (currently unassigned). As of [Unicode 12.0.0](http://www.unicode.org/versions/Unicode12.0.0/) there are almost 138.000 code points in use, meaning slightly under 1 million remain. I think it's safe to say we won't be running out anytime soon.
 
-ASCII can map the English alphabet to bits on a computer, but it wouldn't know what to do with the Unicode alphabet. So we need a character encoding that can map Unicode to bits on a computer.
+ASCII can map the English alphabet to bits on a computer, but it wouldn't know what to do with the Unicode alphabet. So we need a character encoding that can map Unicode to bits on a computer. This is where UTF-8 comes into play.
 
 > ## Let's write the output to a UTF-8 encoded file
 > ## Our message is safe because it's encoded using base64
 
 ## Python unicode strings
-In python 2 there are a class of string literals that are known as [unicode strings](https://docs.python.org/2/howto/unicode.html#encodings). They are delineated by prefixing the character `u` to the string literal (e.g., `u'abc'`). I am not a fan of the term unicode string because it leads to the confusion that unicode is an encoding. So what exactly does python mean when it refers to unicode strings?
+In python 2 there are a class of string literals that are known as [unicode strings](https://docs.python.org/2/howto/unicode.html#encodings). They are delineated by prefixing the character `u` to a string literal (e.g., `u'abc'`). I am not a fan of the term unicode string because it leads to the confusion that unicode is an encoding. So what exactly does python mean when it refers to unicode strings?
 
 Let's look at some examples in Python 2.7.12:
 ```python
@@ -213,7 +205,7 @@ u'abc'
 >>> b
 u'abc\u0154\u0156'
 ```
-So we define 2 strings, `a` and `b`, that contain the same contents as `file1.txt` and `file2.txt`, respectivley. `a` is able to be printed out to the console without an issue, but `b` can't render the 2 non-English "R" characters at the end. Instead those characters are replaced with their unicode code points representations: `U+0154` and `U+0156`. It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
+So we define 2 strings, `a` and `b`, which contain the same contents as `file1.txt` and `file2.txt` did. `a` is able to be printed out to the console without an issue, but `b` can't render the 2 non-English "R" characters at the end. Instead those characters are replaced with their unicode code points representations: `\u0154` (`U+0154`) and `\u0156` (`U+0156`). It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
 
 Let's try explicitly encoding these strings:
 ```python
