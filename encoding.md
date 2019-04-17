@@ -199,10 +199,67 @@ The structure of a code point is as follows: `U+` followed by a hex string. The 
 ASCII can map the English alphabet to bits on a computer, but it wouldn't know what to do with the Unicode alphabet. So we need a character encoding that can map Unicode to bits on a computer.
 
 > ## Let's write the output to a UTF-8 encoded file
+> ## Our message is safe because it's encoded using base64
+
+## Python unicode strings
+In python 2 there are a class of string literals that are known as [unicode strings](https://docs.python.org/2/howto/unicode.html#encodings). They are delineated by prefixing the character `u` to the string literal (e.g., `u'abc'`). I am not a fan of the term unicode string because it leads to the confusion that unicode is an encoding. So what exactly does python mean when it refers to unicode strings?
+
+Let's look at some examples in Python 2.7.12:
+```python
+>>> a = u'abc'
+>>> b = u'abcŔŖ'
+>>> a
+u'abc'
+>>> b
+u'abc\u0154\u0156'
+```
+So we define 2 strings, `a` and `b`, that contain the same contents as `file1.txt` and `file2.txt`, respectivley. `a` is able to be printed out to the console without an issue, but `b` can't render the 2 non-English "R" characters at the end. Instead those characters are replaced with their unicode code points representations: `U+0154` and `U+0156`. It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
+
+Let's try explicitly encoding these strings:
+```python
+>>> a.encode('ascii')
+'abc'
+>>> a.encode('utf-8')
+'abc'
+>>> b.encode('utf-8')
+'abc\xc5\x94\xc5\x96'
+>>> b.encode('ascii')
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+UnicodeEncodeError: 'ascii' codec can't encode characters in position 3-4: ordinal not in range(128)
+```
+String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since ŔŖ are not ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
+
+A unicode string in python 2 is just a combination of ASCII-compatible characters and the code points of non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`) and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
+
+Let's find out using Python 3.5.2:
+```python
+>>> a = "abc"
+>>> b = 'abcŔŖ'
+>>> a
+'abc'
+>>> b
+'abcŔŖ'
+```
+
+Python 3 treats every string as a unicode string, and on top of that, can print non-ASCII compatible characters to the console now. Also the `encode()` function still works the same:
+
+```python
+>>> b.encode('utf-8')
+b'abc\xc5\x94\xc5\x96'
+```
+
+The only other question remaining is how to print out the code points?
+```python
+>>> b.encode('unicode_escape')
+b'abc\\u0154\\u0156'
+```
+
+
 
 ## TL;DR
 * Don't call hex and binary encodings. They are just different ways to represent the same number.
 * ASCII and UTF-8 are encodings. They are the dictionaries that map bits the computer can understand into characters humans can understand.
 * Unicode is not an encoding, it's an alphabet.
 * Encoding `!=` encryption.
-* Base64 is not a numeral system like hex or binary. It is similar to ASCII.
+* Base64 is not a numeral system like hex or binary. It is an encoding similar to ASCII.
