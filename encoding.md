@@ -158,7 +158,7 @@ Again we see the compactness of hex on display. `file1.txt` requires 32 characte
 
 Let's dissect `file1.txt`:
 
-![](table1.jpg)
+![](table1.JPG)
 
 As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (what's known as bits, `1`s and `0`s, on the computer). The hex and decimal representation are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
 
@@ -172,7 +172,7 @@ Over the years ASCII has more or less become the defacto standard for encoding t
 
 Here is the mapping of hex values to their ASCII encodings using the ASCII table:
 
-![](table2.jpg)
+![](table2.JPG)
 
 We can see `a`, `b`, and `c` there just as we would expect. What is that `LF` doing there at the end though? `LF` is a newline character in Unix (standing for "line feed"). However I didn't press the `Return` key when editing `file1.txt`. There should be no newline there! Actually, newlines are also used to indicate the end of a file (commonly abbreviated as `EOF`). Ubuntu inserted it for me, presumably because of how the [POSIX standard defines a line](https://stackoverflow.com/questions/729692/why-should-text-files-end-with-a-newline).
 
