@@ -191,6 +191,8 @@ The structure of a code point is as follows: `U+` followed by a hex string. The 
 ASCII can map the English alphabet to bits on a computer, but it wouldn't know what to do with the Unicode alphabet. So we need a character encoding that can map Unicode to bits on a computer. This is where UTF-8 comes into play.
 
 > ## Let's write the output to a UTF-8 encoded file
+UTF-8 is one of several encodings that support Unicode. You have probably heard of some of the others (and probably not heard of several of them either!): UTF-16 LE, UTF-16 BE UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8) it accounts for over 90% of all web page encodings.
+
 > ## Our message is safe because it's encoded using base64
 
 ## Python unicode strings
