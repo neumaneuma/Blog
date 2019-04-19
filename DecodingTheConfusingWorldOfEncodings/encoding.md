@@ -126,11 +126,11 @@ If we instead applied that ease-of-use criteria to computers we would get binary
 Great, so we can represent the same number in multiple ways. What use is that? Let's refer back to the number ten. We could represent it in binary (`00001010`) or in hex (`a`). It takes eight characters in binary (or four without the padding of `0`s), but only one in hex! That's due to the number of symbols each use. Binary uses two: `0` and `1`. Hex uses 16: `0`-`9` and `a`-`f`. The difference in representation size was stark enough for just the number ten, but it grows significantly more unequal when using larger numbers. So the advantage is that hex can represent large numbers much more efficiently than binary (and more efficiently than decimal too for that matter).
 
 Let's explore how to turn this theory into practical knowledge. To provide some examples for this post I created two files via the command line: `file1.txt` and `file2.txt`. Here are their contents outputted:
-```
+```bash
 $ cat file1.txt
 abc
 ```
-```
+```bash
 $ cat file2.txt
 abcŔŖ
 ```
@@ -191,7 +191,54 @@ The structure of a code point is as follows: `U+` followed by a hex string. The 
 ASCII can map the English alphabet to bits on a computer, but it wouldn't know what to do with the Unicode alphabet. So we need a character encoding that can map Unicode to bits on a computer. This is where UTF-8 comes into play.
 
 > ## Let's write the output to a UTF-8 encoded file
-UTF-8 is one of several encodings that support Unicode. You have probably heard of some of the others (and probably not heard of several of them either!): UTF-16 LE, UTF-16 BE UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8) it accounts for over 90% of all web page encodings.
+UTF-8 is one of several encodings that support Unicode. You may have heard of some of the others: UTF-16 LE, UTF-16 BE, UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8) it accounts for over 90% of all web page encodings.
+
+UTF-8 uses different byte sizes depending on what code point is being used. This is the feature that allows it to maintain backwards compatibility with ASCII.
+
+![](utf8.JPG)
+
+Recall how we saw that the code point for `a` (`U+0061`) in Unicode matched the hex representation of `a` in the ASCII table? That's how backwards compatibility is accomplished. Anything that can be rendered in ASCII can be rendered in UTF-8. And any other code point outside of that range will just use additional bytes to be encoded.
+
+As a refresher, this is what `file2.txt` looks like on the command line:
+```bash
+$ cat file2.txt
+abcŔŖ
+```
+```bash
+$ xxd -b file2.txt # binary
+00000000: 01100001 01100010 01100011 11000101 10010100 11000101  abc...
+00000006: 10010110 00001010                                      ..
+```
+```bash
+$ xxd file2.txt # hex
+00000000: 6162 63c5 94c5 960a                      abc.....
+```
+
+Let's dissect `file2.txt` to understand how UTF-8 works:
+
+| Hexadecimal | UTF-8 | Unicode Code Point |
+| :---: | :---: | :---: |
+| `61` | `a` | `U+0061` |
+| `62` | `b` | `U+0062` |
+| `63` | `c` | `U+0063` |
+| `c594` | `Ŕ` | `U+0154` |
+| `c596` | `Ŗ` | `U+0156` |
+| `0a` | `LF` | `U+000A` |
+
+We can see that the hex representations for `a`, `b`, `c`, and `LF` are the same as for `file1.txt`, and that they align perfectly with their respective code points. The hex representations for `Ŕ` and `Ŗ` are twice as long as the other hex representations though. This means that they require 2 bytes to store instead of 1 byte.
+
+Here is a table showing the binary, hex, and decimal representations side-by-side:
+
+| Binary | Hexadecimal | Decimal |
+| :---: |:---:| :---:|
+| `01100001` | `61` | `97` |
+| `01100010` | `62` | `98` |
+| `01100011` | `63` | `99` |
+| `11000101` | `c5` | `197` |
+| `10010100` | `94` | `148` |
+| `11000101` | `c5` | `197` |
+| `10010110` | `96` | `150` |
+| `00001010` | `0a` | `10` |
 
 > ## Our message is safe because it's encoded using base64
 
@@ -254,6 +301,6 @@ b'abc\\u0154\\u0156'
 ## TL;DR
 * Don't call hex and binary encodings. They are just different ways to represent the same number.
 * ASCII and UTF-8 are encodings. They are the dictionaries that map bits the computer can understand into characters humans can understand.
-* Unicode is not an encoding, it's an alphabet.
+* Unicode is not an encoding, think of it more as an alphabet.
 * Encoding `!=` encryption.
 * Base64 is not a numeral system like hex or binary. It is an encoding similar to ASCII.
