@@ -101,7 +101,7 @@ As you can see, Linux has done some determinations on its own and come to the co
 
 
 ----------------------
-# What is encoding?
+# What is an encoding?
 Have you ever come across some of these statements?
 > This file is hex encoded
 
@@ -258,13 +258,13 @@ u'abc'
 >>> b
 u'abc\u0154\u0156'
 ```
-So we define 2 strings, `a` and `b`, which contain the same contents as `file1.txt` and `file2.txt` did. `a` is able to be printed out to the console without an issue, but `b` can't render the 2 non-English "R" characters at the end. Instead those characters are replaced with their unicode code points representations: `\u0154` (`U+0154`) and `\u0156` (`U+0156`). It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
+So we define 2 strings, `a` and `b`, which contain the same contents as `file1.txt` and `file2.txt` did. `a` is able to be printed out to the console without an issue, but the console can't render `ŔŖ` at the end of `b`. Instead those characters are replaced with their unicode code points: `\u0154` (`U+0154`) and `\u0156` (`U+0156`). It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
 
 Let's try explicitly encoding these strings:
 ```python
->>> a.encode('ascii')
-'abc'
 >>> a.encode('utf-8')
+'abc'
+>>> a.encode('ascii')
 'abc'
 >>> b.encode('utf-8')
 'abc\xc5\x94\xc5\x96'
@@ -273,9 +273,9 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 UnicodeEncodeError: 'ascii' codec can't encode characters in position 3-4: ordinal not in range(128)
 ```
-String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since ŔŖ are not ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
+String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since `ŔŖ` are not ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
 
-A unicode string in python 2 is just a combination of ASCII-compatible characters and the code points of non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`) and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
+A unicode string in python 2 is just a combination of ASCII-compatible characters and the code points of non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
 
 Let's find out using Python 3.5.2:
 ```python
