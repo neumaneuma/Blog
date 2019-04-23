@@ -234,11 +234,11 @@ Here is a table showing the binary, hex, and decimal representations side-by-sid
 
 UTF-8 uses 1 byte to encode ASCII characters, and multiple bytes to encode non-ASCII characters. To be precise it uses 7 bits to encode ASCII characters, exactly like ASCII does. Every byte on disk that maps to an ASCII character will map to the exact same character in UTF-8. And any other code point outside of that range will just use additional bytes to be encoded.
 
-As I alluded to earlier, the code points for `a`, `b`, and `c` match up exactly with the hex representations of those letters in ASCII. I suppose that the designers of Unicode did this in the hopes that it would make backwards compatibility with ASCII easier. UTF-8 made full use of this. Its first 128 characters require one byte to encode. Despite having room for 128 more characters in its first byte, UTF-8 instead required its 129th character to use 2 bytes. [DEL](https://unicode-table.com/en/007F/) is the 128th character (#127 on the page because the table starts at 0) and has the hex representation `7F`, totalling 1 byte. [XXX](https://unicode-table.com/en/0080/) (no, not the character for porn) is the 129th character and has the hex representation `C280`, totalling 2 bytes.
+As I alluded to earlier, the code points for `a`, `b`, and `c` match up exactly with the hex representations of those letters in ASCII. I suppose that the designers of Unicode did this in the hopes that it would make backwards compatibility with ASCII easier. UTF-8 made full use of this. Its first 128 characters require one byte to encode. Despite having room for 128 more characters in its first byte, UTF-8 instead required its 129th character to use 2 bytes. [`DEL`](https://unicode-table.com/en/007F/) is the 128th character (#127 on the page because the table starts at 0) and has the hex representation `7F`, totalling 1 byte. [`XXX`](https://unicode-table.com/en/0080/) (no, not the character for porn) is the 129th character and has the hex representation `C280`, totalling 2 bytes.
 
 If you're curious here are examples of characters requiring over 2 bytes:
-* 3 bytes: [㚈](https://unicode-table.com/en/3688/)
-* 4 bytes: [🜁](https://unicode-table.com/en/1F701/)
+* 3 bytes: [`㚈`](https://unicode-table.com/en/3688/)
+* 4 bytes: [`🜁`](https://unicode-table.com/en/1F701/)
 
 Just to re-emphasize what is happening here: UTF-8 maps bytes on disk to a code point. That code point maps to a character in Unicode. A different encoding, like UTF-32 for example, would map those same bytes to a completely different code point. Or perhaps it wouldn't even have a mapping from those bytes to a valid code point. The point is that a series of bytes could be interpreted in totally different ways depending on the encoding.
 
