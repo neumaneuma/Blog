@@ -160,7 +160,7 @@ Let's dissect `file1.txt`:
 
 ![](table1.JPG)
 
-As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (as what are known as bits, `1`s and `0`s, on the computer). The hex and decimal representation are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
+As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (as what are known as bits, `1`s and `0`s, on the computer). The hex and decimal representation are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. For reference, the largest 1 byte binary value is `11111111` (`255` in decimal), which is `ff` in hex. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
 
 > ## This file uses an ASCII encoding
 
@@ -170,25 +170,27 @@ Over the years ASCII has more or less become the de facto standard for encoding 
 
 ![](asciitable.jpg)
 
-Here is the mapping of hex values to their ASCII characters using the ASCII table:
+Here is the mapping of `file1.txt`'s hex values to their ASCII characters using the ASCII table:
 
 ![](table2.JPG)
 
 We can see `a`, `b`, and `c` there just as we would expect. What is that `LF` doing there at the end though? `LF` is a newline character in Unix (standing for "line feed"). However I didn't press the `Return` key when editing `file1.txt`. There should be no newline there! Actually, newlines are also used to indicate the end of a file (commonly abbreviated as `EOF`). Ubuntu inserted it for me, presumably because of how the [POSIX standard defines a line](https://stackoverflow.com/questions/729692/why-should-text-files-end-with-a-newline).
 
-Any character in the ASCII character set requires only 1 byte to store. ASCII only supports 128 characters, as we saw in the ASCII table. However, 1 byte allows for 256 (or 2<sup>8</sup>) values to be represented. In decimal that would be `0` (`00000000` in binary) through `255` (`11111111` in binary). That should mean ASCII can support 128 more characters. Why isn't that the case? ASCII only required 128 characters to support English text and accompanying symbols so presumably that was all that was taken into account when the ASCII standard was formalized. [Joel Spolsky](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/) wrote an excellent blog post on this (which informed much of my understanding needed to write my own post). Basically the issue was fragmentation. Everyone agreed what the first 128 values should map to, but then everyone went and decided their own usage for the remaining 128 values.
+Any character in the ASCII character set requires only 1 byte to store. ASCII supports 128 characters, as we saw in the ASCII table. However, 1 byte allows for 256 (or 2<sup>8</sup>) values to be represented. In decimal that would be `0` (`00000000` in binary) through `255` (`11111111` in binary). That should mean ASCII can support 128 more characters. Why isn't that the case? ASCII only required 128 characters to support English text and its accompanying symbols so presumably that was all that was taken into account when the ASCII standard was formalized. As a result, ASCII only uses 7 of the 8 bits in a byte. However, that leads to a lot of waste -- half of the values are unused! 128 additional characters could be supported.
 
-Great! This was an important step. We saw that the computer encodes the string `abc` into bits in order to store it. We can then view these bits as the computer has stored it in binary, or we can use different representations such as hex. `a` becomes `97`, `b` becomes `98`, `c` becomes `99`, and the Linux OS adds a `10` at the end to indicate `EOF`. ASCII is just a way to map bits to characters.
+[Joel Spolsky](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/) wrote an excellent blog post on this problem. Basically the issue was fragmentation. Everyone agreed what the first 128 values should map to, but then everyone went and decided their own usage for the remaining 128 values. As a result there was no consistency among different locales.
+
+Let's review what we learned so far. We saw that the computer encodes the string `abc` into bits in order to store it. We can then view these bits as the computer has stored it in binary, or we can use different representations such as hex. `a` becomes `97`, `b` becomes `98`, `c` becomes `99`, and the Linux OS adds a `10` at the end to indicate `EOF`. ASCII is just a way to map bits (that computers understand) to characters (that humans understand).
 
 If you would examine the ASCII table closely, you will see that it only maps to 128 characters. What do we do about characters from other languages? Other random symbols? Emojis???
 
 > ## This string is Unicode encoded
 
-As anglocentric as programming is, English is not the only language that needs to be supported. ASCII is fine for encoding English, but it is incapable of supprting anything else. This is where Unicode enters the fray. Unicode is not an encoding. That point bears repeating. Unicode is _not_ an encoding.
+As anglocentric as programming is in 2019, English is not the only language that needs to be supported on the web. ASCII is fine for encoding English, but it is incapable of supprting anything else. This is where Unicode enters the fray. Unicode is not an encoding. That point bears repeating. Unicode is _not_ an encoding.
 
 [Wikipedia](https://en.wikipedia.org/wiki/Unicode) calls it a standard that can be implemented by different character encodings. I find that definition, while succinct, too abstract. Instead, I prefer to think of it like this:
 
-> Imagine you have a giant alphabet. It can support over 1 million characters. It is a superset of every language known to humankind. It can support made-up languages. It contains every bizarre symbol you can think of. It has emojis. And all that only fills about 15% of its character set. There is space for so much more to be added. To support this alphabet we're going to put it in a giant dictionary. Instead of words mapping to their respective definitions, we'll have numbers mapping to all these characters. Just as the words are in alphabetical order, the numbers will be in ascending order. And for the characters not yet filled in, we'll just have a blank entry next to the unused numbers.
+> Imagine you have a giant alphabet. It can support over 1 million characters. It is a superset of every language known to humankind. It can support made-up languages. It contains every bizarre symbol you can think of. It has emojis. And all that only fills about 15% of its character set. There is space for so much more to be added. To support this alphabet we're going to put it in a giant dictionary. A normal dictionary would map words to their respective definitions. In this special dictionary we'll have numbers mapping to all these characters. Just as the words are in alphabetical order, the numbers will be in ascending order. And for the characters not yet filled in, we'll just have a blank entry next to the unused numbers.
 
 This is Unicode in a nutshell. It's a dictionary that supports an alphabet of over [1.1 million characters](https://stackoverflow.com/questions/27415935/does-unicode-have-a-defined-maximum-number-of-code-points#27416004). It does so through an abstraction called a code point. Every character has a [unique code point](https://unicode-table.com/en/). For example, `a` has a code point of `U+0061`. `b` has a code point of `U+0062`. And `c` has a code point of `U+0063`. Notice a pattern? `61` is the hex value for the character `a` in ASCII, and `U+0061` is the code point for `a` in Unicode. I'll come back to this point in the UTF-8 section.
 
@@ -204,8 +206,6 @@ UTF-8 uses different byte sizes depending on what code point is being used. This
 ![](utf8.JPG)
 
 <sup>Source: Wikipedia</sup>
-
-UTF-8 uses 1 byte to encode ASCII characters, and multiple bytes to encode non-ASCII characters. This made it easy for UTF-8 to be backwards compatible with ASCII. Every byte on disk that maps to an ASCII character will map to the exact same character in UTF-8. And any other code point outside of that range will just use additional bytes to be encoded.
 
 As a refresher, this is what `file2.txt` looks like on the command line:
 ```bash
@@ -232,13 +232,15 @@ Here is a table showing the binary, hex, and decimal representations side-by-sid
 
 ![](table4.jpg)
 
+UTF-8 uses 1 byte to encode ASCII characters, and multiple bytes to encode non-ASCII characters. To be precise it uses 7 bits to encode ASCII characters, exactly like ASCII does. Every byte on disk that maps to an ASCII character will map to the exact same character in UTF-8. And any other code point outside of that range will just use additional bytes to be encoded.
+
+As I alluded to earlier, the code points for `a`, `b`, and `c` match up exactly with the hex representations of those letters in ASCII. I suppose that the designers of Unicode did this in the hopes that it would make backwards compatibility with ASCII easier. UTF-8 made full use of this. Its first 128 characters require one byte to encode. Despite having room for 128 more characters in its first byte, UTF-8 instead required its 129th character to use 2 bytes. [DEL](https://unicode-table.com/en/007F/) is the 128th character (#127 on the page because the table starts at 0) and has the hex representation `7F`, totalling 1 byte. [XXX](https://unicode-table.com/en/0080/) (no, not the character for porn) is the 129th character and has the hex representation `C280`, totalling 2 bytes.
+
 If you're curious here are examples of characters requiring over 2 bytes:
 * 3 bytes: [㚈](https://unicode-table.com/en/3688/)
 * 4 bytes: [🜁](https://unicode-table.com/en/1F701/)
 
-just to emphasize what is happening here: utf8 maps these bytes to a code point. That code point maps to a character in Unicode. A different encoding, like UTF-32 for example, would map those same bytes to a completely different code point. Or perhaps those it wouldn't have a mapping from those bytes to a valid code point. The point is they would be completely different.
-
-https://www.utf8-chartable.de/unicode-utf8-table.pl
+Just to re-emphasize what is happening here: UTF-8 maps bytes on disk to a code point. That code point maps to a character in Unicode. A different encoding, like UTF-32 for example, would map those same bytes to a completely different code point. Or perhaps it wouldn't even have a mapping from those bytes to a valid code point. The point is that a series of bytes could be interpreted in totally different ways depending on the encoding.
 
 > ## Our message is safe because it's encoded using base64
 
