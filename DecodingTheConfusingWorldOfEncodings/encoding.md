@@ -113,6 +113,8 @@ Have you ever come across some of these statements?
 
 > Our message is safe because it's encoded using base64
 
+> Python uses Unicode strings
+
 These represent many of the ways the term "encode" is used across the industry. Frankly I found it all really confusing until I set out to write this post! I'm going to address each of these statements and attempt to define and disambiguate exactly what encoding means.
 
 ---
@@ -244,7 +246,7 @@ Just to re-emphasize what is happening here: UTF-8 maps bytes on disk to a code 
 
 > ## Our message is safe because it's encoded using base64
 
-## Python unicode strings
+> ## Python uses Unicode strings
 In python 2 there are a class of string literals that are known as [unicode strings](https://docs.python.org/2/howto/unicode.html#encodings). They are delineated by prefixing the character `u` to a string literal (e.g., `u'abc'`). I am not a fan of the term unicode string because it leads to the confusion that unicode is an encoding. So what exactly does python mean when it refers to unicode strings?
 
 Let's look at some examples in Python 2.7.12:
