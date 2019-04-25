@@ -184,11 +184,11 @@ Any character in the ASCII character set requires only 1 byte to store. ASCII su
 
 Let's review what we learned so far. We saw that the computer encodes the string `abc` into bits in order to store it. We can then view these bits as the computer has stored it in binary, or we can use different representations such as hex. `a` becomes `97`, `b` becomes `98`, `c` becomes `99`, and the Linux OS adds a `10` at the end to indicate `EOF`. ASCII is just a way to map bits (that computers understand) to characters (that humans understand).
 
-If you would examine the ASCII table closely, you will see that it only maps to 128 characters. What do we do about characters from other languages? Other random symbols? Emojis???
+ASCII leaves a gaping issue though. There are a lot more than 128 characters in use! What do we do about characters from other languages? Other random symbols? Emojis???
 
 > ## This string is Unicode encoded
 
-As anglocentric as programming is in 2019, English is not the only language that needs to be supported on the web. ASCII is fine for encoding English, but it is incapable of supprting anything else. This is where Unicode enters the fray. Unicode is not an encoding. That point bears repeating. Unicode is _not_ an encoding.
+As anglocentric as programming is in 2019, English is not the only language that needs to be supported on the web. ASCII is fine for encoding English, but it is incapable of supporting anything else. This is where Unicode enters the fray. Unicode is not an encoding. That point bears repeating. Unicode is _not_ an encoding.
 
 [Wikipedia](https://en.wikipedia.org/wiki/Unicode) calls it a standard that can be implemented by different character encodings. I find that definition, while succinct, too abstract. Instead, I prefer to think of it like this:
 
@@ -203,7 +203,7 @@ ASCII can map bits on a computer to the English alphabet, but it wouldn't know w
 > ## Let's write the output to a UTF-8 encoded file
 UTF-8 is one of several encodings that support Unicode. You may have heard of some of the others: UTF-16 LE, UTF-16 BE, UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8), it accounts for over 90% of all web page encodings.
 
-UTF-8 uses different byte sizes depending on what code point is being used. This is the feature that allows it to maintain backwards compatibility with ASCII.
+UTF-8 uses different byte sizes depending on what code point is being referenced. This is the feature that allows it to maintain backwards compatibility with ASCII.
 
 ![](utf8.JPG)
 
@@ -274,7 +274,7 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 UnicodeEncodeError: 'ascii' codec can't encode characters in position 3-4: ordinal not in range(128)
 ```
-String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since `ŔŖ` are not ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
+String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since neither `Ŕ` nor `Ŗ` are ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
 
 A unicode string in python 2 is just a combination of ASCII-compatible characters and the code points of non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
 
@@ -306,6 +306,6 @@ b'abc\\u0154\\u0156'
 ## TL;DR
 * Don't call hex and binary encodings. They are just different ways to represent the same number.
 * ASCII and UTF-8 are encodings. They are the dictionaries that map bits the computer can understand into characters humans can understand.
-* Unicode is not an encoding, think of it more as an alphabet.
+* Unicode is not an encoding. Technically it is a standard, but I like to think about it as a dictionary for a giant alphabet.
 * Encoding `!=` encryption.
 * Base64 is not a numeral system like hex or binary. It is an encoding similar to ASCII.
