@@ -67,40 +67,6 @@
         * `TJM` encodes to `VEpN` (`VEpN` with padding)
         * > Concatenating and transmitting this data results in `SQQU0VEpN`. The receiver base64-decodes this as `I\x04\x14\xd1Q` instead of the intended `IAMTJM`. The result is nonsense because the sender has destroyed information about where each word ends in the encoded sequence. If the sender had sent `SQ==QU0=VEpN` instead, the receiver could have decoded this as three separate base64 sequences which would concatenate to give `IAMTJM`.
 
-
-# blog
-Let's start with the basics. What exactly is encoding? There are actually a few different ways the term "encoding" is used, which is part of the reason why the term can be so confusing. For now I'm going to focus on this purpose: to turn human language into something a computer can store. Okay, simple enough. So how exactly does that happen?
-
-To explain the process I'm going to define a few terms to reduce ambiguity:
-1. __character__
-    * Characters are the symbols used to communicate. A letter can be a character, punctuation can be a character, etc... Even emojis can be considered characters.
-1. __number__
-    * A number seems pretty straightforward, but it's actually an abstract concept. What is the number for how many fingers you have? You could say it's `00001010`, `10`, or `a` and all three would be accurate!
-1. __character encoding__
-    * A character encoding is a mapping of __characters__ to __numbers__.
-    * Examples include ASCII, ANSI, UTF-8, etc...
-    * Unicode is _not_ a character encoding! More on this later.
-1. __numeral system__
-    * There are an arbitrary number of ways to represent a __number__. This is where is concept of radix, or as it's more commonly referred, base, comes into play.
-    * A radix of 10 (also known as base-10) is what we refer to as decimal.
-    * There's also hexadecimal (base-16), octal (base-8), binary (base-2), etc... `10` in decimal can be represented as `a` in hex, `12` in octal, and `00001010` in binary.
-    * Base64 is _not_ a __numeral system__! Well technically base-64 is a valid __numeral system,__, but what is commonly referred to as Base64 is not. Base64 is actually a __character encoding__. It is similar to ASCII, but instead of holding 128 characters, Base64 only holds... 64 characters! I'll cover Base64 in more depth at the end.
-
-I will be using two strings as example for how encoding works: `abc` and `abcŔŖ`. The first step in our encoding process is to convert a __character__ into a __number__ somehow. For that we will use a __character encoding__.
-
-Let's start with `abc`. I created a text file on my computer via the command line (I'm using the Ubuntu subsystem on Windows 10 for this post). Here are some details:
-```sh
-$ cat abc.out
-abc
-```
-```sh
-$ file abc.out
-abc.out: ASCII text
-```
-As you can see, Linux has done some determinations on its own and come to the conclusion that `abc.out` should ASCII encoding when being outputted to the screen.
-
-
-----------------------
 # What is an encoding?
 Have you ever come across some of these statements?
 > This file is hex encoded
