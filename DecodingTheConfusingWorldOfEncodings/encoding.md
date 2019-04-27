@@ -175,6 +175,8 @@ UTF-8 uses different byte sizes depending on what code point is being referenced
 
 <sup>Source: Wikipedia</sup>
 
+If UTF-8 encounters a byte that starts with `0`, it knows it found a starting byte and that the character is only one byte in length. If UTF-8 encounters a byte that starts with `110` then it knows it found a starting byte and to look for two bytes in total. For three bytes it is `1110`, and four bytes it is `11110`. All continuation bytes (i.e., the non-starting bytes; bytes 2, 3, or 4) will start with a `10`. The [reason for these continuation bytes](https://www.quora.com/Why-do-subsequent-bytes-in-UTF-8-need-to-start-with-10-when-the-first-byte-already-contains-the-information-on-how-many-bytes-in-total-are-used) is that it allows you to be able to find the starting byte of a character easily.
+
 As a refresher, this is what `file2.txt` looks like on the command line:
 ```bash
 $ cat file2.txt
@@ -222,6 +224,43 @@ Wait, what? That was a nebulous distinction you say? Okay, let me try to explain
 
 Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. It is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
+UTF-8 uses certain bit patterns at the start of a byte to indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line:
+
+```bash
+$ cat > test1.txt
+123456
+```
+```bash
+$ xxd -b test1.txt
+00000000: 00110001 00110010 00110011 00110100 00110101 00110110  123456
+```
+```bash
+$ printf '\xff' | dd of=test1.txt bs=1 seek=0 count=1 conv=notrunc # overwrite the first byte with 11111111
+1+0 records in
+1+0 records out
+1 byte copied, 0.0009188 s, 1.1 kB/s
+```
+```bash
+$ xxd -b test1.txt
+00000000: 11111111 00110010 00110011 00110100 00110101 00110110  .23456
+```
+This is what the file looked like in VSCode using a UTF-8 encoding before being overwritten:
+
+![](beforeOverwrite.JPG)
+
+And this is what it looked like after:
+
+![](afterOverwrite.JPG)
+
+As mentioned before, base64 can always display printable characters, even when UTF-8 cannot. Let's see that in action:
+
+```bash
+$ base64 test1.txt > test2.txt
+```
+
+And now the file is printable:
+
+![](test1b64.JPG)
 
 First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc", and both take plaintext and turn it into gibberish. 
 
