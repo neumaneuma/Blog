@@ -126,7 +126,12 @@ Again we see the compactness of hex on display. `file1.txt` requires 32 characte
 
 Let's dissect `file1.txt`:
 
-![](table1.JPG)
+| Binary | Hexadecimal | Decimal |
+| :---: | :---: | :---: |
+| `01100001` | `61` | `97` |
+| `01100010` | `62` | `98` |
+| `01100011` | `63` | `99` |
+| `00001010` | `0a` | `10` |
 
 As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (as what are known as bits, `1`s and `0`s, on the computer). The hex and decimal representations are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. For reference, the largest 1 byte binary value is `11111111` (`255` in decimal), which is `ff` in hex. The smallest 1 byte binary value is `00000000` (`0` in decimal), which is `00` in hex. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
 
@@ -140,7 +145,12 @@ Back in the day, ASCII was more or less the de facto standard for encoding text 
 
 Here is the mapping of `file1.txt`'s hex values to their ASCII characters using the ASCII table:
 
-![](table2.JPG)
+| Hexadecimal | ASCII |
+| :---: | :---: |
+| `61` | `a` |
+| `62` | `b` |
+| `63` | `c` |
+| `0a` | `LF` |
 
 We can see `a`, `b`, and `c` there just as we would expect. What is that `LF` doing there at the end though? `LF` is a newline character in Unix (standing for "line feed"). However I didn't press the `Return` key when editing `file1.txt`. There should be no newline there! Actually, newlines are also used to indicate the end of a file (commonly abbreviated as `EOF`). Ubuntu inserted it for me, presumably because of how the [POSIX standard defines a line](https://stackoverflow.com/questions/729692/why-should-text-files-end-with-a-newline).
 
@@ -194,13 +204,31 @@ $ xxd file2.txt # hex
 
 Let's dissect `file2.txt` to understand how UTF-8 works:
 
-![](table3.jpg)
+| Hexadecimal | UTF-8 | Unicode Code Point |
+| :---: | :---: | :---: |
+| `61` | `a` | `U+0061` |
+| `62` | `b` | `U+0062` |
+| `63` | `c` | `U+0063` |
+| `c594` | `Ŕ` | `U+0154` |
+| `c596` | `Ŗ` | `U+0156` |
+| `0a` | `LF` | `U+000A` |
+
 
 We can see that the hex representations for `a`, `b`, `c`, and `LF` are the same as for `file1.txt`, and that they align perfectly with their respective code points. The hex representations for `Ŕ` and `Ŗ` are twice as long as the other hex representations though. This means that they require 2 bytes to store instead of 1 byte.
 
-Here is a table showing the binary, hex, and decimal representations side-by-side:
+Here is a table showing the different representations and the type of byte side-by-side:
 
-![](table4.jpg)
+| Byte type | Binary | Hexadecimal | Decimal |
+| :---: | :---: | :---: | :---: |
+| Starting Byte | `01100001` | `61` | `97` |
+| Starting Byte | `01100010` | `62` | `98` |
+| Starting Byte | `01100011` | `63` | `99` |
+| Starting Byte | `11000101` | `c5` | `197` |
+| Continuation Byte | `10010100` | `94` | `148` |
+| Starting Byte | `11000101` | `c5` | `197` |
+| Continuation Byte | `10010110` | `96` | `150` |
+| Starting Byte | `00001010` | `0a` | `10` |
+
 
 UTF-8 uses 1 byte to encode ASCII characters, and multiple bytes to encode non-ASCII characters. To be precise it uses 7 bits to encode ASCII characters, exactly like ASCII does. Every byte on disk that maps to an ASCII character will map to the exact same character in UTF-8. And any other code point outside of that range will just use additional bytes to be encoded.
 
