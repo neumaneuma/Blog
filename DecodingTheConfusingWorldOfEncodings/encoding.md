@@ -272,13 +272,13 @@ $ printf '\xff' | dd of=test1.txt bs=1 seek=0 count=1 conv=notrunc # overwrite t
 $ xxd -b test1.txt
 00000000: 11111111 00110010 00110011 00110100 00110101 00110110  .23456
 ```
-This is what the file looked like in VSCode using a UTF-8 encoding before being overwritten:
+This is what the file looked like in VSCode using a UTF-8 encoding before being overwritten with the `printf '\xff' | dd...` command:
 
-![](beforeOverwrite.JPG)
+![](beforeOverwrite.jpg)
 
 And this is what it looked like after:
 
-![](afterOverwrite.JPG)
+![](afterOverwrite.jpg)
 
 As mentioned before, base64 can always display printable characters, even when UTF-8 cannot. Let's see that in action:
 
@@ -286,9 +286,9 @@ As mentioned before, base64 can always display printable characters, even when U
 $ base64 test1.txt > test2.txt
 ```
 
-And now the file is printable:
+And now the file has printable characters:
 
-![](test1b64.JPG)
+![](b64.jpg)
 
 First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc", and both take plaintext and turn it into gibberish. 
 
