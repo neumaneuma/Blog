@@ -1,72 +1,3 @@
-
-# Data
-* We will use the following 4 terms as a starting point: __character__, __number__, __numeral system__, and __physical representation on disk__. These will serve as the "atomic units" of understanding how data is transformed on a computer.
-    * __character__
-        * A set of __characters__ is the representation of any given language's alphabet. The english alphabet has 26 characters for example.
-    * __number__
-        * A number seems pretty straightforward, but it's actually an abstract concept. What is the number for how many fingers you have? You could say it's `1010`, `10`, or `a` and all 3 would be accurate! Why? Because of __numeral systems__.
-    * __numeral system__
-        * This is peeling back a layer of abstraction on __numbers__. Turns out there are an arbitrary number of ways to represent a __number__! Getting kind of inceptiony here, but the concept of radix/base comes into play here. A radix of 10 (also known as base-10) is what we commonly know as decimal. There's also hexadecimal (base-16), binary (base-2), etc...
-    * __physical representation on disk__
-        * This is about how to represent data. Data is an abstract concept. If you peel back enough layers, all data on a computer system is represented using the binary numeral system. This is what we'll define as the __physical representation on disk__.
-* __encoding__
-    * Now let's define what we mean by the use of __encoding__ in this document. An encoding is the mapping of one of our atomic units to another atomic unit. So we can think of an encoding as a function: `f(atomic unit) -> atomic unit`.
-    * However, there is an ordering to these atomic units. Let's explore this ordering and how it relates to __encoding__.
-    * The term __encoding__ is used quite broadly in the software industry. We will attempt to disambiguate the term a bit and provide some more granular definitions of the types of __encodings__ out there and how they relate to our 4 atomic units.
-* Unicode --- The set of all __characters__
-    * Unicode is not an encoding. It is a __character set__ (a grouping of __characters__). It is the standardized way to represent ["every reasonable writing system on the planet."](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/) You can think of it as the world's largest alphabet. The Unicode __character set__ is represented using a concept known as code points. Every letter maps to a code point, which is represented something like this: `U+0041`. That is the english letter `A` (which has a different code point than `a`).
-* Transforming a __character__ into a __number__
-    * Now enter the different __character encodings__ (e.g., ASCII, ANSI, UTF-8, UTF-16, UTF-32, etc...). This is what we will call how we encode a __character__ into a __number__.
-    * each character encoding has alphabets. when ascii doesn't understand something it uses that question mark box
-    * ASCII and ANSI are old and can't represent Unicode. [UTF-8, UTF-16, and UTF-32](https://stackoverflow.com/questions/496321/utf-8-utf-16-and-utf-32) do however.
-* Transforming a __number__ into a __numeral system__
-    * Now enter the different __numeric encodings__ (e.g., Binary, Octal, Decimal, Hexadecimal, Base64, etc...). This is how we encode a __number__ into a __numeral system__ representation,
-    * Any __character encoding__ from any of those aforementioned encodings can be represented by any of these __numeral systems__.
-    * The UTF-8 encoding for [TETRAGRAM FOR STOVE](https://www.fileformat.info/info/unicode/char/1d331/index.htm) is `0xf09d8cb1` in hexadecimal, etc...
-    * start with TETRAGRAM FOR STOVE and work your way through the flowchart
-    * numeral system has alphabets
-    * encoding requires a character encoding and a numeral encoding to be able to be represented? otherwise in a state of flux, it is a arbitrary concept. a character needs acsii, ansi, etc... to be represented as a number. a number needs binary, octal, etc... to be understood by a computer
-* Final step: going from __numeral system__ to __physical representation on disk__
-    * Remember __physical representation on disk__? It's the final state for our data. As we mentioned, it's binary (the binary __numeral system__ to be exact).
-    * There is no "encoding" left here. We just convert whatever base we were in to binary and voila! If we were already in binary, then there was literally nothing to do.
-* State ASCII art: __character__ -> __number__ -> __numeral system__ -> __physical representation on disk__
-* 
-* Base64
-    * [Base64 vs. Base64URL](http://websecurityinfo.blogspot.com/2017/06/base64-encoding-vs-base64url-encoding.html)
-        * URL encoding transforms a string into a valid URL.
-        * Base64URL doesn't use `+` or `/` characters (instead using `-` and `_`) to make it URL and filesystem safe.
-* [Padding](https://stackoverflow.com/questions/4080988/why-does-base64-encoding-require-padding-if-the-input-length-is-not-divisible-by)
-    * Bit size
-        * Base<sub>2</sub> has an alphabet size of 2, and therefore requires 1 bit to represent (i.e., `0` or `1`). 2<sup>1</sup> == 2.
-            * 1 byte can hold 8 characters:
-            ```
-            1 byte / bit-size ---> 8 bits / bit-size ---> 8 / 1 ---> 8
-            ```
-        * Base<sub>16</sub> has an alphabet size of 16, and therefore requires 4 bits to represent (i.e., `0000`, `0001`, `0010`, ..., `1111`). 2<sup>4</sup> == 16.
-            * 1 byte can hold 2 characters:
-            ```
-            1 byte / bit-size ---> 8 bits / bit-size ---> 8 / 4 ---> 2
-            ```
-        * Base<sub>64</sub> has an alphabet size of 64, and therefore requires 6 bits to represent. 2<sup>6</sup> == 64.
-            * 1 byte can hold 1 character (but 3 bytes can hold 4 characters!):
-            ```
-            1 byte / bit-size ---> 8 bits / bit-size ---> 8 / 6 ---> 1.33
-            3 bytes / bit-size ---> 24 bits / bit-size ---> 24 / 6 ---> 4
-            ```
-        * Base<sub>256</sub> has an alphabet size of 256, and therefore requires 8 bits to represent. 2<sup>8</sup> == 256.
-            * 1 byte can hold 1 character:
-            ```
-            1 byte / bit-size ---> 8 bits / bit-size ---> 8 / 8 ---> 1
-            ```
-
-        * 2<sup>`bit-size`</sup> == `alphabet-size`
-    * Base<sub>2</sub>, Base<sub>16</sub>, and Base<sub>256</sub> always fit evenly into a byte. Base<sub>64</sub>, however, does not.
-    * Therefore it requires padding in order to make it 1 byte per character (thus maintaining data integrity):
-        * `I` encodes to `SQ` (`SQ==` with padding)
-        * `AM` encodes to `QU0` (`QU0=` with padding)
-        * `TJM` encodes to `VEpN` (`VEpN` with padding)
-        * > Concatenating and transmitting this data results in `SQQU0VEpN`. The receiver base64-decodes this as `I\x04\x14\xd1Q` instead of the intended `IAMTJM`. The result is nonsense because the sender has destroyed information about where each word ends in the encoded sequence. If the sender had sent `SQ==QU0=VEpN` instead, the receiver could have decoded this as three separate base64 sequences which would concatenate to give `IAMTJM`.
-
 # What is an encoding?
 Have you ever come across some of these statements?
 > This file is hex encoded
@@ -152,7 +83,7 @@ Here is the mapping of `file1.txt`'s hex values to their ASCII characters using 
 | `63` | `c` |
 | `0a` | `LF` |
 
-We can see `a`, `b`, and `c` there just as we would expect. What is that `LF` doing there at the end though? `LF` is a newline character in Unix (standing for "line feed"). However I didn't press the `Return` key when editing `file1.txt`. There should be no newline there! Actually, newlines are also used to indicate the end of a file (commonly abbreviated as `EOF`). Ubuntu inserted it for me, presumably because of how the [POSIX standard defines a line](https://stackoverflow.com/questions/729692/why-should-text-files-end-with-a-newline).
+We can see `a`, `b`, and `c` there just as we would expect. What is that `LF` doing there at the end though? `LF` is a newline character in Unix (standing for "line feed"). I pressed the `Return` key when editing `file1.txt`, so that added a newline.
 
 Any character in the ASCII character set requires only 1 byte to store. ASCII supports 128 characters, as we saw in the ASCII table. However, 1 byte allows for 256 (or 2<sup>8</sup>) values to be represented. In decimal that would be `0` (`00000000` in binary) through `255` (`11111111` in binary). That should mean ASCII can support 128 more characters. Why isn't that the case? ASCII only required 128 characters to support English text and its accompanying symbols so presumably that was all that was taken into account when the ASCII standard was formalized. As a result, ASCII only uses 7 of the 8 bits in a byte. However, that leads to a lot of waste -- half of the values are unused! 128 additional characters could be supported.
 
@@ -254,25 +185,25 @@ Wait, what? That was a nebulous distinction you say? Okay, let me try to explain
 
 Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
-I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line:
+I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line with a new file, `file3.txt`:
 
 ```bash
-$ cat > test1.txt
-123456
+$ cat fil3.txt
+123
 ```
 ```bash
-$ xxd -b test1.txt
-00000000: 00110001 00110010 00110011 00110100 00110101 00110110  123456
+$ xxd -b file3.txt
+00000000: 00110001 00110010 00110011 00001010                    123.
 ```
 ```bash
-$ printf '\xff' | dd of=test1.txt bs=1 seek=0 count=1 conv=notrunc # overwrite the first byte with 11111111
+$ printf '\xff' | dd of=file3.txt bs=1 seek=0 count=1 conv=notrunc # overwrite the first byte with 11111111
 1+0 records in
 1+0 records out
 1 byte copied, 0.0009188 s, 1.1 kB/s
 ```
 ```bash
-$ xxd -b test1.txt
-00000000: 11111111 00110010 00110011 00110100 00110101 00110110  .23456
+$ xxd -b file3.txt
+00000000: 11111111 00110010 00110011 00001010                    .23.
 ```
 This is what the file looked like in VSCode using a UTF-8 encoding before being overwritten with the `printf '\xff' | dd...` command:
 
@@ -285,12 +216,16 @@ And this is what it looked like after:
 As mentioned before, Base64 can always display printable characters, even when UTF-8 cannot. Let's see that in action:
 
 ```bash
-$ base64 test1.txt > test2.txt
+$ base64 file3.txt > file4.txt
 ```
 
 And now the file has printable characters:
 
 ![](b64.jpg)
+
+Base64 has 64 characters in its alphabet. That means it only needs 6 bits to represent the whole alphabet (2<sup>6</sup> == 64). Instead of the UTF-8 approach of using the leading bits in a byte as metadata and the remaining bits to store the actual data, Base64 uses the entire byte as data. It has no metadata. However, as I mentioned it only uses 6 bits. A byte has 8 bits. How does this math line up?
+
+
 
 First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc", and both take plaintext and turn it into gibberish. 
 
