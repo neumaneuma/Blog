@@ -77,7 +77,7 @@ Have you ever come across some of these statements?
 
 > Let's write the output to a UTF-8 encoded file
 
-> Our message is safe because it's encoded using base64
+> Our message is safe because it's encoded using Base64
 
 > Python uses Unicode strings for encoding
 
@@ -133,7 +133,7 @@ Let's dissect `file1.txt`:
 | `01100011` | `63` | `99` |
 | `00001010` | `0a` | `10` |
 
-As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (as what are known as bits, `1`s and `0`s, on the computer). The hex and decimal representations are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. For reference, the largest 1 byte binary value is `11111111` (`255` in decimal), which is `ff` in hex. The smallest 1 byte binary value is `00000000` (`0` in decimal), which is `00` in hex. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
+As mentioned above, binary is the numeral system that computers "understand". The binary representation of these two files are literally how these files are stored in the computer (as what are known as bits, `1`s and `0`s, on the computer). The hex and decimal representations are just different ways of representing those bits. We can see that every byte in binary (1 byte is equal to 8 bits) lines up with 2 hex characters. And we can see what those same values would be if they were represented in decimal. For reference, the largest 1 byte binary value is `11111111`, which is `ff` in hex and `255` in decimal. The smallest 1 byte binary value is `00000000`, which is `00` in hex and `0` in decimal. But even armed with this understanding of hex and binary, there's still a lot to go. How does all this relate to the contents of `file1.txt`?
 
 > ## This file uses an ASCII encoding
 
@@ -168,13 +168,15 @@ As anglocentric as programming is in 2019, English is not the only language that
 
 [Wikipedia](https://en.wikipedia.org/wiki/Unicode) calls it a standard that can be implemented by different character encodings. I find that definition, while succinct, too abstract. Instead, I prefer to think of it like this:
 
-> Imagine you have a giant alphabet. It can support over 1 million characters. It is a superset of every language known to humankind. It can support made-up languages. It contains every bizarre symbol you can think of. It has emojis. And all that only fills about 15% of its character set. There is space for so much more to be added. To support this alphabet we're going to put it in a giant dictionary. After all, it's impractical to have a keyboard that can type over 1 million characters. There needs to be some way to use the characters in this alphabet! A normal dictionary would map words to their respective definitions. In this special dictionary we'll have numbers mapping to all these characters. Just as the words are in alphabetical order, the numbers will be in ascending order. And for the characters not yet filled in, we'll just have a blank entry next to the unused numbers.
+> Imagine you have a giant alphabet. It can support over 1 million characters. It is a superset of every language known to humankind. It can support made-up languages. It contains every bizarre symbol you can think of. It has emojis. And all that only fills about 15% of its character set. There is space for so much more to be added. It's impractical to have a keyboard that has button combinations for over 1 million different characters. The keyboard I'm using right now has 47 buttons dedicated to typeable characters. With the `Shift` key that number is doubled. That's nowhere close to 1 million though. There needs to be some way to use the characters in this alphabet!
+
+> In order to make this alphabet usable we're going to put it in a giant dictionary.  A normal dictionary would map words to their respective definitions. In this special dictionary we'll have numbers mapping to all these characters. So to type the character you want, you will type the number for it. And then it will be someone else's job to replace those numbers with the characters they map to in the dictionary. Just as the words are in alphabetical order, the numbers will be in ascending order. And for the characters not yet filled in, we'll just have a blank entry next to the unused numbers.
 
 This is Unicode in a nutshell. It's a dictionary that supports an alphabet of over [1.1 million characters](https://stackoverflow.com/questions/27415935/does-unicode-have-a-defined-maximum-number-of-code-points#27416004). It does so through an abstraction called a code point. Every character has a [unique code point](https://unicode-table.com/en/). For example, `a` has a code point of `U+0061`. `b` has a code point of `U+0062`. And `c` has a code point of `U+0063`. Notice a pattern? `61` is the hex value for the character `a` in ASCII, and `U+0061` is the code point for `a` in Unicode. I'll come back to this point in the UTF-8 section.
 
 The structure of a code point is as follows: `U+` followed by a hex string. The smallest that hex string could be is `0000` and the largest is `10FFFF`. So `U+0000` is the smallest code point (representing the `Null` character) and `U+10FFFF` is the largest code point (currently unassigned). As of [Unicode 12.0.0](http://www.unicode.org/versions/Unicode12.0.0/) there are almost 138,000 code points in use, meaning slightly under 1 million remain. I think it's safe to say we won't be running out anytime soon.
 
-ASCII can map bits on a computer to the English alphabet, but it wouldn't know what to do with Unicode. So we need a character encoding that can map bits on a computer to Unicode code points (which in turn map to a giant alphabet). This is where UTF-8 comes into play.
+ASCII can map bits on a computer to the English alphabet, but it wouldn't know what to do with Unicode. So we need a character encoding that can map bits on a computer to Unicode code points (which in turn maps to a giant alphabet). This is where UTF-8 comes into play.
 
 > ## Let's write the output to a UTF-8 encoded file
 UTF-8 is one of several encodings that support Unicode. You may have heard of some of the others: UTF-16 LE, UTF-16 BE, UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8), it accounts for over 90% of all web page encodings.
@@ -218,16 +220,16 @@ We can see that the hex representations for `a`, `b`, `c`, and `LF` are the same
 
 Here is a table showing the different representations and the type of byte side-by-side:
 
-| Byte type | Binary | Hexadecimal | Decimal |
-| :---: | :---: | :---: | :---: |
-| Starting Byte | `01100001` | `61` | `97` |
-| Starting Byte | `01100010` | `62` | `98` |
-| Starting Byte | `01100011` | `63` | `99` |
-| Starting Byte | `11000101` | `c5` | `197` |
-| Continuation Byte | `10010100` | `94` | `148` |
-| Starting Byte | `11000101` | `c5` | `197` |
-| Continuation Byte | `10010110` | `96` | `150` |
-| Starting Byte | `00001010` | `0a` | `10` |
+| Byte type | Binary | Hexadecimal | Decimal | UTF-8 |
+| :---: | :---: | :---: | :---: | :---: |
+| Starting Byte | `01100001` | `61` | `97` | `a` |
+| Starting Byte | `01100010` | `62` | `98` | `b` |
+| Starting Byte | `01100011` | `63` | `99` | `c` |
+| Starting Byte | `11000101` | `c5` | `197` | `Ŕ` |
+| Continuation Byte | `10010100` | `94` | `148` | `Ŕ` (contd.) |
+| Starting Byte | `11000101` | `c5` | `197` | `Ŗ` |
+| Continuation Byte | `10010110` | `96` | `150` | `Ŗ` (contd.) |
+| Starting Byte | `00001010` | `0a` | `10` | `LF` |
 
 
 UTF-8 uses 1 byte to encode ASCII characters, and multiple bytes to encode non-ASCII characters. To be precise it uses 7 bits to encode ASCII characters, exactly like ASCII does. Every byte on disk that maps to an ASCII character will map to the exact same character in UTF-8. And any other code point outside of that range will just use additional bytes to be encoded.
@@ -240,7 +242,7 @@ If you're curious here are examples of characters requiring over 2 bytes:
 
 Just to re-emphasize what is happening here: UTF-8 maps bytes on disk to a code point. That code point maps to a character in Unicode. A different encoding, like UTF-32 for example, would map those same bytes to a completely different code point. Or perhaps it wouldn't even have a mapping from those bytes to a valid code point. The point is that a series of bytes could be interpreted in totally different ways depending on the encoding.
 
-> ## Our message is safe because it's encoded using base64
+> ## Our message is safe because it's encoded using Base64
 
 This statement deals with several different concepts. I'll start by going over the different types of encoding.
 
@@ -250,9 +252,9 @@ What's the difference? Both character encodings and binary-to-text encodings sha
 
 Wait, what? That was a nebulous distinction you say? Okay, let me try to explain it in a different way. A character encoding like ASCII is really good for data storage and transmission. For example, say you're writing a speech. You want to save it on your computer so you don't have to re-type it every time. The computer stores that speech as a bunch of `1`s and `0`s. ASCII is needed to translate those bits back into the words, letters, and punctuation that make up the speech. In the same way, say you want to upload the speech to the cloud. The exact same process is needed to transport that speech over the Internet.
 
-Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. It is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
+Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
-UTF-8 uses certain bit patterns at the start of a byte to indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line:
+I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line:
 
 ```bash
 $ cat > test1.txt
@@ -280,7 +282,7 @@ And this is what it looked like after:
 
 ![](afterOverwrite.jpg)
 
-As mentioned before, base64 can always display printable characters, even when UTF-8 cannot. Let's see that in action:
+As mentioned before, Base64 can always display printable characters, even when UTF-8 cannot. Let's see that in action:
 
 ```bash
 $ base64 test1.txt > test2.txt
