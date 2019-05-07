@@ -1,4 +1,5 @@
-# What is an encoding?
+# What is an encoding? Part 1
+
 Have you ever come across some of these statements?
 > This file is hex encoded
 
@@ -89,7 +90,7 @@ Any character in the ASCII character set requires only 1 byte to store. ASCII su
 
 [Joel Spolsky](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/) wrote an excellent blog post on this problem. Basically the issue was fragmentation. Everyone agreed what the first 128 values should map to, but then everyone went and decided their own usage for the remaining 128 values. As a result there was no consistency among different locales.
 
-Let's review what we learned so far. We saw that the computer encodes the string `abc` into bits in order to store it. We can then view these bits as the computer has stored it in binary, or we can use different representations such as hex. `a` becomes `97`, `b` becomes `98`, `c` becomes `99`, and the Linux OS adds a `10` at the end to indicate `EOF`. ASCII is just a way to map bits (that computers understand) to characters (that humans understand).
+Let's review what we learned so far. We saw that the computer encodes the string `abc` into bits in order to store it. We can then view these bits as the computer has stored it in binary, or we can use different representations such as hex. `a` becomes `97`, `b` becomes `98`, `c` becomes `99`, and the newline character in Unix is `10`. ASCII is just a way to map bits (that computers understand) to characters (that humans understand).
 
 ASCII leaves a gaping issue though. There are a lot more than 128 characters in use! What do we do about characters from other languages? Other random symbols? Emojis???
 
@@ -99,9 +100,9 @@ As anglocentric as programming is in 2019, English is not the only language that
 
 [Wikipedia](https://en.wikipedia.org/wiki/Unicode) calls it a standard that can be implemented by different character encodings. I find that definition, while succinct, too abstract. Instead, I prefer to think of it like this:
 
-> Imagine you have a giant alphabet. It can support over 1 million characters. It is a superset of every language known to humankind. It can support made-up languages. It contains every bizarre symbol you can think of. It has emojis. And all that only fills about 15% of its character set. There is space for so much more to be added. It's impractical to have a keyboard that has button combinations for over 1 million different characters. The keyboard I'm using right now has 47 buttons dedicated to typeable characters. With the `Shift` key that number is doubled. That's nowhere close to 1 million though. There needs to be some way to use the characters in this alphabet!
+> Imagine you have a giant alphabet. It can support over 1 million characters. It is a superset of every language known to humankind. It can support made-up languages. It contains every bizarre symbol you can think of. It has emojis. And all that only fills about 15% of its character set. There is space for much more to be added. However, it's impractical to have a keyboard that has button combinations for over 1 million different characters. The keyboard I'm using right now has 47 buttons dedicated to typeable characters. With the `Shift` key that number is doubled. That's nowhere close to 1 million though. There needs to be some way to use the characters in this alphabet!
 
-> In order to make this alphabet usable we're going to put it in a giant dictionary.  A normal dictionary would map words to their respective definitions. In this special dictionary we'll have numbers mapping to all these characters. So to type the character you want, you will type the number for it. And then it will be someone else's job to replace those numbers with the characters they map to in the dictionary. Just as the words are in alphabetical order, the numbers will be in ascending order. And for the characters not yet filled in, we'll just have a blank entry next to the unused numbers.
+> In order to make this alphabet usable we're going to put it in a giant dictionary.  A normal dictionary would map words to their respective definitions. In this special dictionary we'll have numbers mapping to all these characters. So to produce the character you want, you will type the corresponding number for it. And then it will be someone else's job to replace those numbers with the characters that they map to in the dictionary. Just as the words are in alphabetical order, the numbers will be in ascending order. And for the characters not yet filled in, we'll just have a blank entry next to the unused numbers.
 
 This is Unicode in a nutshell. It's a dictionary that supports an alphabet of over [1.1 million characters](https://stackoverflow.com/questions/27415935/does-unicode-have-a-defined-maximum-number-of-code-points#27416004). It does so through an abstraction called a code point. Every character has a [unique code point](https://unicode-table.com/en/). For example, `a` has a code point of `U+0061`. `b` has a code point of `U+0062`. And `c` has a code point of `U+0063`. Notice a pattern? `61` is the hex value for the character `a` in ASCII, and `U+0061` is the code point for `a` in Unicode. I'll come back to this point in the UTF-8 section.
 
@@ -110,7 +111,7 @@ The structure of a code point is as follows: `U+` followed by a hex string. The 
 ASCII can map bits on a computer to the English alphabet, but it wouldn't know what to do with Unicode. So we need a character encoding that can map bits on a computer to Unicode code points (which in turn maps to a giant alphabet). This is where UTF-8 comes into play.
 
 > ## Let's write the output to a UTF-8 encoded file
-UTF-8 is one of several encodings that support Unicode. You may have heard of some of the others: UTF-16 LE, UTF-16 BE, UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8), it accounts for over 90% of all web page encodings.
+UTF-8 is one of several encodings that support Unicode. In fact, the UTF in UTF-8 stands for Unicode Transformation Format. You may have heard of some of the others: UTF-16 LE, UTF-16 BE, UTF-32, UCS-2, UTF-7, etc... I'm going to ignore all the rest of these though. Why? Because UTF-8 is by far the dominant encoding of the group. It is backwards compatible with ASCII, and according to [Wikipedia](https://en.wikipedia.org/wiki/UTF-8), it accounts for over 90% of all web page encodings.
 
 UTF-8 uses different byte sizes depending on what code point is being referenced. This is the feature that allows it to maintain backwards compatibility with ASCII.
 
@@ -173,124 +174,6 @@ If you're curious here are examples of characters requiring over 2 bytes:
 
 Just to re-emphasize what is happening here: UTF-8 maps bytes on disk to a code point. That code point maps to a character in Unicode. A different encoding, like UTF-32 for example, would map those same bytes to a completely different code point. Or perhaps it wouldn't even have a mapping from those bytes to a valid code point. The point is that a series of bytes could be interpreted in totally different ways depending on the encoding.
 
-> ## Our message is safe because it's encoded using Base64
+---
 
-This statement deals with several different concepts. I'll start by going over the different types of encoding.
-
-As best as I can tell there are 2 different types of encodings: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is one example of a binary-to-text encoding.
-
-What's the difference? Both character encodings and binary-to-text encodings share the same goal of turning bits into characters. However, character encodings are designed to produce human-readable output. Binary-to-text encodings are designed to turn bits into human-printable output.
-
-Wait, what? That was a nebulous distinction you say? Okay, let me try to explain it in a different way. A character encoding like ASCII is really good for data storage and transmission. For example, say you're writing a speech. You want to save it on your computer so you don't have to re-type it every time. The computer stores that speech as a bunch of `1`s and `0`s. ASCII is needed to translate those bits back into the words, letters, and punctuation that make up the speech. In the same way, say you want to upload the speech to the cloud. The exact same process is needed to transport that speech over the Internet.
-
-Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
-
-I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line with a new file, `file3.txt`:
-
-```bash
-$ cat fil3.txt
-123
-```
-```bash
-$ xxd -b file3.txt
-00000000: 00110001 00110010 00110011 00001010                    123.
-```
-```bash
-$ printf '\xff' | dd of=file3.txt bs=1 seek=0 count=1 conv=notrunc # overwrite the first byte with 11111111
-1+0 records in
-1+0 records out
-1 byte copied, 0.0009188 s, 1.1 kB/s
-```
-```bash
-$ xxd -b file3.txt
-00000000: 11111111 00110010 00110011 00001010                    .23.
-```
-This is what the file looked like in VSCode using a UTF-8 encoding before being overwritten with the `printf '\xff' | dd...` command:
-
-![](beforeOverwrite.jpg)
-
-And this is what it looked like after:
-
-![](afterOverwrite.jpg)
-
-As mentioned before, Base64 can always display printable characters, even when UTF-8 cannot. Let's see that in action:
-
-```bash
-$ base64 file3.txt > file4.txt
-```
-
-And now the file has printable characters:
-
-![](b64.jpg)
-
-Base64 has 64 characters in its alphabet. That means it only needs 6 bits to represent the whole alphabet (2<sup>6</sup> == 64). Instead of the UTF-8 approach of using the leading bits in a byte as metadata and the remaining bits to store the actual data, Base64 uses the entire byte as data. It has no metadata. However, as I mentioned it only uses 6 bits. A byte has 8 bits. How does this math line up?
-
-
-
-First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc", and both take plaintext and turn it into gibberish. 
-
-Encoding turns plaintext into seeming gibberish, however, it is intended to be easily turned back into plaintext. 
-
-> ## Python uses Unicode strings for encoding
-
-In python 2 there are a class of string literals that are known as [unicode strings](https://docs.python.org/2/howto/unicode.html#encodings). They are delineated by prefixing the character `u` to a string literal (e.g., `u'abc'`). I am not a fan of the term unicode string because it leads to the confusion that unicode is an encoding. So what exactly does python mean when it refers to unicode strings?
-
-Let's look at some examples in Python 2.7.12:
-```python
->>> a = u'abc'
->>> b = u'abcŔŖ'
->>> a
-u'abc'
->>> b
-u'abc\u0154\u0156'
-```
-So we define 2 strings, `a` and `b`, which contain the same contents as `file1.txt` and `file2.txt` did. `a` is able to be printed out to the console without an issue, but the console can't render `ŔŖ` at the end of `b`. Instead those characters are replaced with their unicode code points: `\u0154` (`U+0154`) and `\u0156` (`U+0156`). It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
-
-Let's try explicitly encoding these strings:
-```python
->>> a.encode('utf-8')
-'abc'
->>> a.encode('ascii')
-'abc'
->>> b.encode('utf-8')
-'abc\xc5\x94\xc5\x96'
->>> b.encode('ascii')
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-UnicodeEncodeError: 'ascii' codec can't encode characters in position 3-4: ordinal not in range(128)
-```
-String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since neither `Ŕ` nor `Ŗ` are ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
-
-A unicode string in python 2 is just a combination of ASCII-compatible characters and the code points of non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
-
-Let's find out using Python 3.5.2:
-```python
->>> a = "abc"
->>> b = 'abcŔŖ'
->>> a
-'abc'
->>> b
-'abcŔŖ'
-```
-
-Python 3 treats every string as a unicode string, and on top of that, can print non-ASCII compatible characters to the console now. Also the `encode()` function still works the same:
-
-```python
->>> b.encode('utf-8')
-b'abc\xc5\x94\xc5\x96'
-```
-
-The only other question remaining is how to print out the code points?
-```python
->>> b.encode('unicode_escape')
-b'abc\\u0154\\u0156'
-```
-
-
-
-## TL;DR
-* Don't call hex and binary encodings. They are just different ways to represent the same number.
-* ASCII and UTF-8 are encodings. They are the dictionaries that map bits the computer can understand into characters humans can understand.
-* Unicode is not an encoding. Technically it is a standard, but I like to think about it as a dictionary for a giant alphabet.
-* Encoding `!=` encryption.
-* Base64 is not a numeral system like hex or binary. It is an encoding similar to ASCII.
+That's it for part 1. We covered numeral systems like hex and binary (which I like to call representations instead of encodings), different character encodings such as ASCII and UTF-8, and what Unicode is (and why it's _not_ an encoding). In part 2 we'll address the remaining points and hopefully clear up the confusion surrounding the term "encoding".
