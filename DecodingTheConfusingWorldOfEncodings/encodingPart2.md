@@ -10,7 +10,7 @@ In part 1 we demystified the following ways the term "encoding" is used:
 
 > Let's write the output to a UTF-8 encoded file
 
-In part 2 we'll address the remaining ways "encoding" is used:
+In part 2 we'll address the remaining ways "encoding" might be used:
 
 > Our message is safe because it's encoded using Base64
 
@@ -31,7 +31,9 @@ Wait, what? That was a nebulous distinction you say? Okay, let me try to explain
 
 Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
-I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`. Let's show this on the command line with a new file, `file3.txt`:
+I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. For example, UTF-8 doesn't understand `11111111`.
+
+Let's show this on the command line with a new file, `file3.txt`:
 
 ```bash
 $ cat fil3.txt
@@ -73,7 +75,7 @@ Base64 has 64 characters in its alphabet. That means it only needs 6 bits to rep
 
 
 
-First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc", and both take plaintext and turn it into gibberish. 
+First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc," and both take plaintext and turn it into gibberish. 
 
 Encoding turns plaintext into seeming gibberish, however, it is intended to be easily turned back into plaintext. 
 
