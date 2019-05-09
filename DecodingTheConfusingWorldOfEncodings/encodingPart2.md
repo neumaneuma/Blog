@@ -23,7 +23,7 @@ In part 2 we'll address the remaining ways "encoding" might be used:
 
 This statement deals with several different concepts. I'll start by going over the different types of encoding.
 
-As best as I can tell there are 2 different types of encodings: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is one example of a binary-to-text encoding.
+As best as I can tell there are 2 different types of encodings: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is an example of a binary-to-text encoding.
 
 What's the difference? Both character encodings and binary-to-text encodings share the same goal of turning bits into characters. However, character encodings are designed to produce human-readable output. Binary-to-text encodings are designed to turn bits into human-printable output.
 
@@ -36,7 +36,7 @@ I described in the UTF-8 section how certain bit patterns at the start of a byte
 Let's show this on the command line with a new file, `file3.txt`:
 
 ```bash
-$ cat fil3.txt
+$ cat file3.txt
 123
 ```
 ```bash
@@ -71,9 +71,37 @@ And now the file has printable characters:
 
 ![](b64.jpg)
 
-Base64 has 64 characters in its alphabet. That means it only needs 6 bits to represent the whole alphabet (2<sup>6</sup> == 64). Instead of the UTF-8 approach of using the leading bits in a byte as metadata and the remaining bits to store the actual data, Base64 uses the entire byte as data. It has no metadata. However, as I mentioned it only uses 6 bits. A byte has 8 bits. How does this math line up?
+Okay, great. But how did we end up with `/zIzCg==`? I'll take this one step at a time to avoid confusion.
 
+Base64 has 64 characters in its alphabet. That means it only needs 6 bits to represent the whole alphabet (2<sup>6</sup> == 64). UTF-8 uses the leading bits in a byte as metadata to determine whether it's a starting byte or a continuation byte. Those bytes don't hold any information about the character being stored (the actual data). In contrast, Base64 uses the entire byte as data. It has no metadata. However, as I mentioned it only uses 6 bits. A byte has 8 bits. How does this math line up?
 
+Let's start by examining the Base64 table, which looks very similar to the ASCII table:
+
+![](b64table.png)
+
+`file3.txt`'s binary representation is `11111111 00110010 00110011 00001010`. The way Base64 works is to interpret the bits in groups of 6. So even though there are 4 groups of 8 bits, we're going to modify the spacing to reflect how Base64 sees this: `111111 110011 001000 110011 000010 10`. In fact, let's look at it in a table format to make things easier:
+
+| Bytes | Base64 character |
+| :---: | :---: |
+| `111111` | `/` |
+| `110011` | `z` |
+| `001000` | `I` |
+| `110011` | `z` |
+| `000010` | `C` |
+| `10` | ??? |
+
+The first 5 groupings of 6 bit clumps line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end. `file3.txt` had 32 bits, which is not divisible by 6. When that happens Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append 4 `0`s to the end of the file, making it 36 bits in total. 36 is divisible by 6. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
+
+| Bytes | Base64 character |
+| :---: | :---: |
+| `111111` | `/` |
+| `110011` | `z` |
+| `001000` | `I` |
+| `110011` | `z` |
+| `000010` | `C` |
+| `100000` | `g` |
+
+That's much better. Now the first 6 characters match. But what about the `==` at the end? We have no bits remaining. In fact, `=` isn't even in the Base64 table! What gives?
 
 First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc," and both take plaintext and turn it into gibberish. 
 
