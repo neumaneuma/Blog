@@ -105,42 +105,48 @@ That's much better. Now the first 6 characters match. But what about the `==` at
 
 Base64 requires that the number of characters outputted be divisible by 4. This means that those `=` are padding characters to satisfy that requirement. But why does that requirement exist? Well, let's think about it. Base64 characters use 6 bits. A byte uses 8 bits. Bytes are fundamental building blocks in a file system. We don't measure things in bits, but rather in bytes. So how many Base64 characters does it take so that the total number of bits fits neatly into a string of bytes (i.e., is divisible by 8)?
 
-It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters in 24 bits. Hence the requirement that the Base64 encoded length of a given input be divisible by 4. This means that a file that is 1 byte in size will produce 4 Base64 characters, just like a file 2 bytes in size or 3 bytes in size would. And a 4 byte file would produce 8 Base64 characters. Any file size that is divisible by 3 bytes will always produce a Base64 output that does not need `=` as padding.
+It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters in 24 bits. Hence the requirement that the Base64 encoded length of a given input be divisible by 4. This means that a file that is 1 byte in size will produce 4 Base64 characters, just like a file 2 bytes in size or 3 bytes in size would. And a 4 byte file would produce 8 Base64 characters. Any file size that is divisible by 3 bytes will always produce a Base64 output that does not need any `=` characters as padding.
 
 Let's walk through some examples of strings that both require padding and do not require it.
 
-* 2 characters of padding: `@`
+---
+
+_2 characters of padding: `@` (`01000000`)_
 
 | Bytes | UTF-8 character |
 | :---: | :---: |
 | `01000000` | `@` |
 
-| Bytes | Base64 character |
-| :---: | :---: |
-| `010000` | `Q` |
-| `000000` | `A` |
-| `padding` | `=` |
-| `padding` | `=` |
+| Bytes | Bit positions | Base64 character |
+| :---: | :---: | :---: |
+| `010000` | __010000__ 00 | `Q` |
+| `000000` | 010000 __00__ | `A` |
+| `padding` | `none` | `=` |
+| `padding` | `none` | `=` |
 
-Notice that 4 `0`s were appended to the end to make the bit length (excluding any `=` padding) divisible by 6.
+Notice that since there were only 2 bits to use at the end, 4 `0`s were appended to the end to make the bit length (excluding any `=` padding) divisible by 6.
 
-* 1 character of padding: `AB`
+---
+
+_1 character of padding: `AB` (`0100000101000010`)_
 
 | Bytes | UTF-8 character |
 | :---: | :---: |
 | `01000001` | `A` |
 | `01000010` | `B` |
 
-| Bytes | Base64 character |
-| :---: | :---: |
-| `010000` | `Q` |
-| `010100` | `U` |
-| `001000` | `I` |
-| `padding` | `=` |
+| Bytes | Bit positions | Base64 character |
+| :---: | :---: | :---: |
+| `010000` | __010000__ 0101000010 | `Q` |
+| `010100` | 010000 __010100__ 0010 | `U` |
+| `001000` | 010000010100 __0010__ | `I` |
+| `padding` | `none` | `=` |
 
 This time only 2 `0`s were appended to the end of the string.
 
-* No padding: `v3c`
+---
+
+_No padding: `v3c` (`011101100011001101100011`)_
 
 | Bytes | UTF-8 character |
 | :---: | :---: |
@@ -148,14 +154,16 @@ This time only 2 `0`s were appended to the end of the string.
 | `00110011` | `3` |
 | `01100011` | `c` |
 
-| Bytes | Base64 character |
-| :---: | :---: |
-| `011101` | `d` |
-| `100011` | `j` |
-| `001101` | `N` |
-| `100011` | `j` |
+| Bytes | Bit positions | Base64 character |
+| :---: | :---: | :---: |
+| `011101` | __011101__ 100011001101100011 | `d` |
+| `100011` | 011101 __100011__ 001101100011 | `j` |
+| `001101` | 011101100011 __001101__ 100011 | `N` |
+| `100011` | 011101100011001101 __100011__ | `j` |
 
 No `0`s needed to be appended this time since the number of bits was divisible by 6.
+
+---
 
 Now we should be able to understand when padding is required and when it isn't. Let's take a look at the completed table of `file4.txt`:
 
@@ -170,7 +178,7 @@ Now we should be able to understand when padding is required and when it isn't. 
 | `padding` | `=` |
 | `padding` | `=` |
 
-One last thing to be aware of is that `file4.txt`, `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since the Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
+One last thing to be aware of is that `file4.txt`, the contents which are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since the Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
 
 ```bash
 $ xxd -b file4.txt
