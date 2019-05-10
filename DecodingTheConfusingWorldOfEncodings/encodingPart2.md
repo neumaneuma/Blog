@@ -167,18 +167,20 @@ No `0`s needed to be appended this time since the number of bits was divisible b
 
 Now we should be able to understand when padding is required and when it isn't. Let's take a look at the completed table of `file4.txt`:
 
-| Bytes | Base64 character |
-| :---: | :---: |
-| `111111` | `/` |
-| `110011` | `z` |
-| `001000` | `I` |
-| `110011` | `z` |
-| `000010` | `C` |
-| `100000` | `g` |
-| `padding` | `=` |
-| `padding` | `=` |
+_Raw binary of `file3.txt`: `11111111001100100011001100001010`_
 
-One last thing to be aware of is that `file4.txt`, the contents which are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since the Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
+| Bytes | Bit positions | Base64 character |
+| :---: | :---: | :---: |
+| `111111` | __111111__ 11001100100011001100001010 | `/` |
+| `110011` | 111111 __110011__ 00100011001100001010 | `z` |
+| `001000` | 111111110011 __001000__ 11001100001010 | `I` |
+| `110011` | 111111110011001000 __110011__ 00001010 | `z` |
+| `000010` | 111111110011001000110011 __000010__ 10 | `C` |
+| `100000` | 111111110011001000110011000010 __10__ | `g` |
+| `padding` | `none` | `=` |
+| `padding` | `none` | `=` |
+
+One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since the Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
 
 ```bash
 $ xxd -b file4.txt
