@@ -90,7 +90,7 @@ Let's start by examining the Base64 table, which looks very similar to the ASCII
 | `000010` | `C` |
 | `10` | ??? |
 
-The first 5 groupings of 6 bit clumps line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end. `file3.txt` had 32 bits, which is not divisible by 6. When that happens Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append 4 `0`s to the end of the file, making it 36 bits in total. 36 is divisible by 6. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
+The first 5 groupings of 6 bit clumps line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end. `file3.txt` had 32 bits, which is not divisible by 6. When that happens, Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append 4 `0`s to the end of the file, making it 36 bits in total since 36 is divisible by 6. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
 
 | Bytes | Base64 character |
 | :---: | :---: |
@@ -103,15 +103,28 @@ The first 5 groupings of 6 bit clumps line up perfectly with the first 5 charact
 
 That's much better. Now the first 6 characters match. But what about the `==` at the end? We have no bits remaining. In fact, `=` isn't even in the Base64 table! What gives?
 
-Base64 requires that the number of characters outputted be divisible by 4. This means that those `=` are padding characters to satisfy that requirement. But why does that requirement exist? Well, let's think about it. Base64 characters use 6 bits. A byte uses 8 bits. Bytes are fundamental building blocks in a file system. We don't measure things in bits, but rather in bytes. So how many Base64 characters does it take so that the total number of bits fits neatly into a string of bytes (i.e., is divisible by 8)?
+Base64 requires that the number of characters outputted be divisible by 4. This means that those `=` are padding characters to satisfy that requirement. But why does that requirement exist? Well, let's think about it. Base64 characters use 6 bits. A byte uses 8 bits. Bytes are fundamental building blocks in a file system. We don't measure things in bits, but rather in bytes. So how many Base64 characters does it take so that the total number of bits fit neatly into a string of bytes (i.e., is divisible by 8)?
 
-It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters in 24 bits. Hence the requirement that the Base64 encoded length of a given input be divisible by 4. This means that a file that is 1 byte in size will produce 4 Base64 characters, just like a file 2 bytes in size or 3 bytes in size would. And a 4 byte file would produce 8 Base64 characters. Any file size that is divisible by 3 bytes will always produce a Base64 output that does not need any `=` characters as padding.
+It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters (of 6 bits each) in 24 bits. Hence the requirement that the Base64 encoded length of a given input be divisible by 4.
+
+Here is a table that displays how the original file size relates to the number of Base64 characters outputted and the number of `=` padding used:
+
+| Original file size | Number of Base64 characters in output | Number of `=` paddings in Base64 output |
+| :---: | :---: | :---: |
+| 1 byte | 4 | `==` |
+| 2 bytes | 4 | `=` |
+| 3 bytes | 4 | |
+| 4 bytes | 8 | `==` |
+| 5 bytes | 8 | `=` |
+| 6 bytes | 8 | |
+| ... | ... | ... |
+
 
 Let's walk through some examples of strings that both require padding and do not require it.
 
 ---
 
-_2 characters of padding: `@` (`01000000`)_
+_2 `=` of padding: `@` (`01000000`)_
 
 | Bytes | UTF-8 character |
 | :---: | :---: |
@@ -128,7 +141,7 @@ Notice that since there were only 2 bits to use at the end, 4 `0`s were appended
 
 ---
 
-_1 character of padding: `AB` (`0100000101000010`)_
+_1 `=` of padding: `AB` (`0100000101000010`)_
 
 | Bytes | UTF-8 character |
 | :---: | :---: |
@@ -165,9 +178,9 @@ No `0`s needed to be appended this time since the number of bits was divisible b
 
 ---
 
-Now we should be able to understand when padding is required and when it isn't. Let's take a look at the completed table of `file4.txt`:
+Now we should be able to understand when padding is required and when it isn't. Let's take a look at the completed table of `file3.txt`:
 
-_Raw binary of `file3.txt`: `11111111001100100011001100001010`_
+_Raw binary of `file3.txt` (4 bytes in total): `11111111001100100011001100001010`_
 
 | Bytes | Bit positions | Base64 character |
 | :---: | :---: | :---: |
@@ -180,7 +193,7 @@ _Raw binary of `file3.txt`: `11111111001100100011001100001010`_
 | `padding` | `none` | `=` |
 | `padding` | `none` | `=` |
 
-One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since the Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
+One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since Base64 is a subset of the ASCII alphabet and therefore would only use ASCII characters). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
 
 ```bash
 $ xxd -b file4.txt
