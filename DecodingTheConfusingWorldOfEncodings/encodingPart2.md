@@ -21,15 +21,15 @@ In part 2 we'll address the remaining ways "encoding" might be used:
 
 > ## Our message is safe because it's encoded using Base64
 
-This statement deals with several different concepts. I'll start by going over the different types of encoding.
+This statement deals with several different concepts. I'll start by going over the types of encoding.
 
-As best as I can tell there are 2 different types of encodings: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is an example of a binary-to-text encoding.
+As best as I can tell there are 2 different encoding categorizations: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is an example of a binary-to-text encoding.
 
 What's the difference? Both character encodings and binary-to-text encodings share the same goal of turning bits into characters. However, character encodings are designed to produce human-readable output. Binary-to-text encodings are designed to turn bits into human-printable output.
 
 Wait, what? That was a nebulous distinction you say? Okay, let me try to explain it in a different way. A character encoding like ASCII is really good for data storage and transmission. For example, say you're writing a speech. You want to save it on your computer so you don't have to re-type it every time. The computer stores that speech as a bunch of `1`s and `0`s. ASCII is needed to translate those bits back into the words, letters, and punctuation that make up the speech. In the same way, say you want to upload the speech to the cloud. The exact same process is needed to transport that speech over the Internet.
 
-Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF`. Those characters are non-printable characters. Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
+Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings on the web. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF` (which are examples of non-printable characters). Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
 I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. A byte that doesn't start with `0`, `10`, `110`, `1110`, or `11110` wouldn't be rendered properly by UTF-8. For example, UTF-8 doesn't understand `11111111`.
 
@@ -90,7 +90,7 @@ Let's start by examining the Base64 table, which looks very similar to the ASCII
 | `000010` | `C` |
 | `10` | ??? |
 
-The first 5 groupings of 6 bits line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end, which is not enough to make a valid character is Base64. `file3.txt` had 4 bytes, which is 32 bits. 32 is not divisible by 6.
+The first 5 groupings of 6 bits line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end, which is not enough to make a valid character in Base64. `file3.txt` had 4 bytes, which is 32 bits. 32 is not divisible by 6.
 
 When is a file size is not divisible by 6 bits, Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append 4 `0`s to the end of the file so that the final character can be properly rendered by Base64. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
 
@@ -109,7 +109,7 @@ Base64 requires that the number of characters outputted be divisible by 4. This 
 
 It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters (of 6 bits each) in 24 bits. Hence the requirement that the Base64 encoded length of a given input be divisible by 4.
 
-Here is a table that displays how the original file affects the Base64 output:
+Here is a table that displays how the original file size affects the Base64 output:
 
 | Original file size | # of Base64 characters | `=` padding | `0` padding |
 | :---: | :---: | :---: | :---: |
@@ -138,7 +138,7 @@ _2 `=` of padding: `@` (`01000000`)_
 | `padding` | `none` | `=` |
 | `padding` | `none` | `=` |
 
-Notice that since there were only 2 bits to use at the end, 4 `0`s were used as padding to the end to make the bit length (excluding any `=` padding) divisible by 6.
+Notice that since there were only 2 bits to use at the end, `0000` was used as padding to the end to make the bit length (excluding any `=` padding) divisible by 6.
 
 ---
 
@@ -156,7 +156,7 @@ _1 `=` of padding: `AB` (`0100000101000010`)_
 | `001000` | 010000010100 __0010__ | `I` |
 | `padding` | `none` | `=` |
 
-This time only 2 `0`s were used as padding at the end of the string.
+This time `00` was used as padding at the end of the string.
 
 ---
 
@@ -179,7 +179,7 @@ No `0`s needed as padding this time since the number of bits was divisible by 6.
 
 ---
 
-Now we should be able to understand when padding is required and when it isn't. Let's take a look at the completed table of `file4.txt`:
+Now we should be able to understand when padding is required and when it isn't. Let's take a look at the completed table of `file4.txt` (the Base64 representation of `file3.txt`):
 
 _Raw binary of `file3.txt` (4 bytes in total): `11111111001100100011001100001010`_
 
@@ -198,7 +198,7 @@ Since `file3.txt` is 4 bytes, it required  `0000` as padding for the last Base64
 
 ---
 
-One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since the Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
+One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
 
 One mistaken assumption I had while learning this was that the Base64 file would have the exact same bytes on disk as the original file (i.e., `file4.txt` and `file3.txt` would have the same bytes). However this is not the case! Observe:
 
@@ -218,11 +218,19 @@ If we created a new file and manually typed in `/zIzCg==`, this is the binary re
 
 `=` is also not URL-safe, but there is no standardization on how to handle it. Some libraries will percent-encode it (`%3D`) and some will encode it as a period (`.`).
 
+---
+
 ### Encoding vs. encryption
 
-First things first, encoding is not the same as encryption. I guess people confuse the terms because they both start with "enc," and both take plaintext and turn it into gibberish. 
+For some reason people often mix up these two terms. I think the reason why, specifically when it involves Base64, is the [HTTP `Authorization` request header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization#Examples) and [JWTs](https://jwt.io/). Both of these concepts are security-related and involve Base64. I assume that since Base64 transforms plaintext to seemingly "scrambled" output people mistakenly think Base64 encoding is the same thing as encryption.
 
-Encoding turns plaintext into seeming gibberish, however, it is intended to be easily turned back into plaintext. 
+Well it's not.
+
+Encryption is the process of mathematically transforming plaintext into ciphertext (a bunch of gibberish) using a key (basically just a random number). Depending on the type of encryption used, the only way to transform ciphertext back to plaintext is with that same key (symmetric encryption) or with a different-but-mathematically-related key (asymmetric encryption). The only way to break encryption without the key is through brute force, which depending on the strength of encryption used, could take [6.4 quadrillion years](https://www.thesslstore.com/blog/what-is-256-bit-encryption/).
+
+Encoding, in the binary-to-text sense, is the process of transforming bits into an output that's human-printable. It's meant to be a trivially reversible process that anyone can do. Even if a different encoding than Base64 were used, there are a pretty finite amount of encodings out there. Brute forcing that would probably take a modern computer a handful of milliseconds to accomplish.
+
+This of course implies that the HTTP `Authorization` request header and JWTs do not provide any inherent data confidentiality. Not to say that they are useless, but just that encryption is not one of their benefits. Anyone who intercepts those pieces of data can simple decode the Base64 with ease (if they are technically savvy enough to sniff network traffic then the odds are pretty good they also know what Base64 is). Base64 is meant to ensure that you won't have to deal with binary data (i.e., binary that the standard character encodings don't know how to interpret) or characters like `NUL` or `EOF`. It is often used in security-related concepts (such as the [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) for example), but it is not itself a security technique!
 
 > ## Python uses Unicode strings for encoding
 
@@ -279,11 +287,3 @@ The only other question remaining is how to print out the code points?
 b'abc\\u0154\\u0156'
 ```
 
-
-
-## TL;DR
-* Don't call hex and binary encodings. They are just different ways to represent the same number.
-* ASCII and UTF-8 are encodings. They are the dictionaries that map bits the computer can understand into characters humans can understand.
-* Unicode is not an encoding. Technically it is a standard, but I like to think about it as a dictionary for a giant alphabet.
-* Encoding `!=` encryption.
-* Base64 is not a numeral system like hex or binary. It is an encoding similar to ASCII.
