@@ -1,6 +1,6 @@
 # What is an encoding? Part 2
 
-In part 1 we demystified the following ways the term "encoding" is used:
+In [part 1]() we demystified the following ways the term "encoding" is used:
 
 > This file is hex encoded
 
@@ -10,7 +10,7 @@ In part 1 we demystified the following ways the term "encoding" is used:
 
 > Let's write the output to a UTF-8 encoded file
 
-In part 2 we'll address the remaining ways "encoding" might be used:
+In part 2 we'll address the remaining ways "encoding" could be used:
 
 > Our message is safe because it's encoded using Base64
 
@@ -31,7 +31,7 @@ Wait, what? That was a nebulous distinction you say? Okay, let me try to explain
 
 Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings on the web. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF` (which are examples of non-printable characters). Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
-I described in the UTF-8 section how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. A byte that doesn't start with `0`, `10`, `110`, `1110`, or `11110` wouldn't be rendered properly by UTF-8. For example, UTF-8 doesn't understand `11111111`.
+I described in the UTF-8 section in [part 1]() how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. A byte that doesn't start with `0`, `10`, `110`, `1110`, or `11110` wouldn't be rendered properly by UTF-8. For example, UTF-8 doesn't understand `11111111`.
 
 Let's show this on the command line with a new file, `file3.txt`:
 
@@ -73,7 +73,7 @@ And now the file has printable characters:
 
 Okay, great. But how did we end up with `/zIzCg==`? I'll take this one step at a time to avoid confusion.
 
-Base64 has 64 characters in its alphabet. That means it only needs 6 bits to represent the whole alphabet (2<sup>6</sup> == 64). UTF-8 uses the leading bits in a byte as metadata to determine whether it's a starting byte or a continuation byte. Those bytes don't hold any information about the character being stored (the actual data). In contrast, Base64 uses the entire byte as data. It has no metadata. However, as I mentioned it only uses 6 bits. A byte has 8 bits. How does this math line up?
+Base64 has 64 characters in its alphabet. That means it only needs 6 bits to represent the whole alphabet (2<sup>6</sup> == 64). UTF-8 uses the leading bits in a byte as metadata to determine whether it's a starting byte or a continuation byte. Those bytes don't hold any information about the character being stored (i.e., the actual data). In contrast, Base64 uses the entire byte as data. It has no metadata. However, as I mentioned it only uses 6 bits. A byte has 8 bits. How does this math line up?
 
 Let's start by examining the Base64 table, which looks very similar to the ASCII table:
 
@@ -92,7 +92,7 @@ Let's start by examining the Base64 table, which looks very similar to the ASCII
 
 The first 5 groupings of 6 bits line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end, which is not enough to make a valid character in Base64. `file3.txt` had 4 bytes, which is 32 bits. 32 is not divisible by 6.
 
-When is a file size is not divisible by 6 bits, Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append 4 `0`s to the end of the file so that the final character can be properly rendered by Base64. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
+When is a file size is not divisible by 6 bits, Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append `0000` to the end of the file so that the final character can be properly rendered by Base64. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
 
 | Bytes | Base64 character |
 | :---: | :---: |
@@ -105,9 +105,9 @@ When is a file size is not divisible by 6 bits, Base64 resorts to padding. To ma
 
 That's much better. Now the first 6 characters match. But what about the `==` at the end? We have no bits remaining. In fact, `=` isn't even in the Base64 table! What gives?
 
-Base64 requires that the number of characters outputted be divisible by 4. This means that those `=` are padding characters to satisfy that requirement. But why does that requirement exist? Well, let's think about it. Base64 characters use 6 bits. A byte uses 8 bits. Bytes are fundamental building blocks in a file system. We don't measure things in bits, but rather in bytes. So how many Base64 characters does it take so that the total number of bits fit neatly into a string of bytes (i.e., is divisible by 8)?
+Base64 requires that the number of characters outputted be divisible by 4. This means that those `=` are padding characters to satisfy that requirement. But why does that requirement exist? Well, let's hypothesize a bit here. Base64 characters use 6 bits each. A byte uses 8 bits. Bytes are fundamental building blocks in a file system. We don't measure things in bits, but rather in bytes. So how many Base64 characters does it take so that the total number of bits fit neatly into a string of bytes (i.e., is divisible by 8)?
 
-It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters (of 6 bits each) in 24 bits. Hence the requirement that the Base64 encoded length of a given input be divisible by 4.
+It takes 24 bits, which is 3 bytes. And there are 4 Base64 characters (of 6 bits each) in 24 bits. I suppose this was the rationale behind the `=` padding requirement.
 
 Here is a table that displays how the original file size affects the Base64 output:
 
@@ -196,11 +196,7 @@ _Raw binary of `file3.txt` (4 bytes in total): `11111111001100100011001100001010
 
 Since `file3.txt` is 4 bytes, it required  `0000` as padding for the last Base64 character and `==` as padding for the total Base64 output.
 
----
-
-One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk.
-
-One mistaken assumption I had while learning this was that the Base64 file would have the exact same bytes on disk as the original file (i.e., `file4.txt` and `file3.txt` would have the same bytes). However this is not the case! Observe:
+One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk. One mistaken assumption I had while learning this was that the Base64 file would have the exact same bytes on disk as the original file (i.e., `file4.txt` and `file3.txt` would have the same bytes). However this is not the case! Observe:
 
 ```bash
 $ xxd -b file4.txt
@@ -208,7 +204,7 @@ $ xxd -b file4.txt
 00000006: 00111101 00111101 00001010                             ==.
 ```
 
-If we created a new file and manually typed in `/zIzCg==`, this is the binary representation it would have. This is simply a UTF-8 encoding.
+So Base64 took the underlying bits of `file3.txt`, used its algorithm to map those to Base64 characters, and then wrote those characters to `file4.txt` in UTF-8. If we created a new file and manually typed in `/zIzCg==`, it would have the exact same binary representation. This is simply a UTF-8 encoding of text.
 
 ---
 
@@ -222,7 +218,7 @@ If we created a new file and manually typed in `/zIzCg==`, this is the binary re
 
 ### Encoding vs. encryption
 
-For some reason people often mix up these two terms. I think the reason why, specifically when it involves Base64, is the [HTTP `Authorization` request header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization#Examples) and [JWTs](https://jwt.io/). Both of these concepts are security-related and involve Base64. I assume that since Base64 transforms plaintext to seemingly "scrambled" output people mistakenly think Base64 encoding is the same thing as encryption.
+For some reason people often mix these two terms up. I think the reason why, specifically when it involves Base64, is because of the [HTTP `Authorization` request header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization#Examples) and [JWTs](https://jwt.io/). Both of these concepts are security-related and involve Base64 to transform plaintext into seemingly "scrambled" output. As a result, people mistakenly think Base64 encoding is the same thing as encryption.
 
 Well it's not.
 
@@ -230,7 +226,9 @@ Encryption is the process of mathematically transforming plaintext into cipherte
 
 Encoding, in the binary-to-text sense, is the process of transforming bits into an output that's human-printable. It's meant to be a trivially reversible process that anyone can do. Even if a different encoding than Base64 were used, there are a pretty finite amount of encodings out there. Brute forcing that would probably take a modern computer a handful of milliseconds to accomplish.
 
-This of course implies that the HTTP `Authorization` request header and JWTs do not provide any inherent data confidentiality. Not to say that they are useless, but just that encryption is not one of their benefits. Anyone who intercepts those pieces of data can simple decode the Base64 with ease (if they are technically savvy enough to sniff network traffic then the odds are pretty good they also know what Base64 is). Base64 is meant to ensure that you won't have to deal with binary data (i.e., binary that the standard character encodings don't know how to interpret) or characters like `NUL` or `EOF`. It is often used in security-related concepts (such as the [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) for example), but it is not itself a security technique!
+This of course implies that the HTTP `Authorization` request header and JWTs do not provide any inherent data confidentiality. Not to say that they are useless, but just that encryption is not one of their benefits. Anyone who intercepts those pieces of data can simply decode the Base64 with ease (if they are technically savvy enough to sniff network traffic then the odds are pretty good they also know what Base64 is). Base64 is meant to ensure that you won't have to deal with binary data (i.e., bytes that the standard character encodings don't know how to interpret) or characters like `NUL` or `EOF`. It is often used in security-related concepts (such as the [PEM format](https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail) for example), but it is not itself a security technique!
+
+---
 
 > ## Python uses Unicode strings for encoding
 
@@ -245,7 +243,7 @@ u'abc'
 >>> b
 u'abc\u0154\u0156'
 ```
-So we define 2 strings, `a` and `b`, which contain the same contents as `file1.txt` and `file2.txt` did. `a` is able to be printed out to the console without an issue, but the console can't render `ŔŖ` at the end of `b`. Instead those characters are replaced with their unicode code points: `\u0154` (`U+0154`) and `\u0156` (`U+0156`). It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
+So we define 2 strings, `a` and `b`, which contain the same contents as `file1.txt` and `file2.txt` from [part 1]() did. `a` is able to be printed out to the console without an issue, but the console can't render `ŔŖ` at the end of `b`. Instead those characters are replaced with their unicode code points: `\u0154` (`U+0154`) and `\u0156` (`U+0156`). It appears that the python 2 interpreter can only print strings using ASCII, and not a unicode-compatible encoding.
 
 Let's try explicitly encoding these strings:
 ```python
@@ -260,9 +258,9 @@ Traceback (most recent call last):
   File "<stdin>", line 1, in <module>
 UnicodeEncodeError: 'ascii' codec can't encode characters in position 3-4: ordinal not in range(128)
 ```
-String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since neither `Ŕ` nor `Ŗ` are ASCII compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
+String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since neither `Ŕ` nor `Ŗ` are ASCII-compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
 
-A unicode string in python 2 is just a combination of ASCII-compatible characters and the code points of non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
+A unicode string in python 2 is just a combination of ASCII-compatible characters and the string representations of code points for the non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
 
 Let's find out using Python 3.5.2:
 ```python
@@ -287,3 +285,6 @@ The only other question remaining is how to print out the code points?
 b'abc\\u0154\\u0156'
 ```
 
+---
+
+Now readers should have a good idea of what Base64 is and how it works, the difference between encoding and encryption, and what python means by unicode strings. That was a lot to get through! But that is indicative of the complexities and overloaded terms surrounding what an "encoding" is. Hopefully the next time someone talks about needing to encode a string in Unicode or how their passwords are secure because they're encoded in Base64 you can set them straight.
