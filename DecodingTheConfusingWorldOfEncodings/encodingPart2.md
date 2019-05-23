@@ -23,7 +23,7 @@ In part 2 we'll address the remaining ways "encoding" could be used:
 
 This statement deals with several different concepts. I'll start by going over the types of encoding.
 
-As best as I can tell there are 2 different encoding categorizations: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is an example of a binary-to-text encoding.
+As best as I can tell there are 2 different categories for encoding: [character encodings](https://en.wikipedia.org/wiki/Character_encoding) and [binary-to-text encodings](https://en.wikipedia.org/wiki/Binary-to-text_encoding). ASCII and UTF-8 are examples of character encodings. Base64 is an example of a binary-to-text encoding.
 
 What's the difference? Both character encodings and binary-to-text encodings share the same goal of turning bits into characters. However, character encodings are designed to produce human-readable output. Binary-to-text encodings are designed to turn bits into human-printable output.
 
@@ -31,7 +31,7 @@ Wait, what? That was a nebulous distinction you say? Okay, let me try to explain
 
 Base64 is an example of a binary-to-text encoding. In fact, it's pretty much the only one in use, much like UTF-8 is for character encodings on the web. It is a subset of ASCII, containing 64 of the 128 ASCII characters: `a-z`, `A-Z`, `0-9`, `+`, and `/`. It doesn't contain characters like `NUL` or `EOF` (which are examples of non-printable characters). Base64 is often used to translate a binary file to text, or even a text file with non-printable characters to one with only printable characters. The benefits of this are that you can output the contents of any type of file, no matter what data it contains. It doesn't have to be limited to a file either; it can be just a string, such as a password. Also, you are guaranteed to always have characters that can be displayed, no matter what the underlying bits are. That is something UTF-8 cannot accomplish. How does Base64 do it?
 
-I described in the UTF-8 section in [part 1]() how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. A byte that doesn't start with `0`, `10`, `110`, `1110`, or `11110` wouldn't be rendered properly by UTF-8. For example, UTF-8 doesn't understand `11111111`.
+I described in the UTF-8 section in part 1 how certain bit patterns at the start of a byte indicate how many bytes the character will be. `0` for 1 byte, `110` for 2 bytes, `1110` for 3 bytes, and `11110` for 4 bytes. And it uses `10` to indicate a byte is a continuation byte. This means that byte sequences that don't follow this pattern are incomprehensible to UTF-8. A byte that doesn't start with `0`, `10`, `110`, `1110`, or `11110` wouldn't be rendered properly by UTF-8. For example, UTF-8 doesn't understand `11111111`.
 
 Let's show this on the command line with a new file, `file3.txt`:
 
@@ -92,7 +92,7 @@ Let's start by examining the Base64 table, which looks very similar to the ASCII
 
 The first 5 groupings of 6 bits line up perfectly with the first 5 characters of our Base64 encoded `file4.txt`. But we only have 2 bits remaining at the end, which is not enough to make a valid character in Base64. `file3.txt` had 4 bytes, which is 32 bits. 32 is not divisible by 6.
 
-When is a file size is not divisible by 6 bits, Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append `0000` to the end of the file so that the final character can be properly rendered by Base64. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
+When a file size is not divisible by 6 bits, Base64 resorts to padding. To make a 32 bit file compatible with Base64 we'll append `0000` to the end of the file so that the final character can be properly rendered by Base64. Here is the new bit string: `111111 110011 001000 110011 000010 100000`. Let's view it in a table format too:
 
 | Bytes | Base64 character |
 | :---: | :---: |
@@ -194,7 +194,7 @@ _Raw binary of `file3.txt` (4 bytes in total): `11111111001100100011001100001010
 | `padding` | `none` | `=` |
 | `padding` | `none` | `=` |
 
-Since `file3.txt` is 4 bytes, it required  `0000` as padding for the last Base64 character and `==` as padding for the total Base64 output.
+Since `file3.txt` is 4 bytes, it required  `0000` as padding for the last Base64 character and `==` as padding for the complete Base64 output.
 
 One last thing to be aware of is that `file4.txt`, whose contents are `/zIzCg==`, will be stored as UTF-8 (which will be the exact same as ASCII in this instance since Base64 is a subset of the ASCII alphabet). Remember that Base64 isn't a character encoding! It's a binary-to-text encoding. Character encodings are the ones that are stored on disk. One mistaken assumption I had while learning this was that the Base64 file would have the exact same bytes on disk as the original file (i.e., `file4.txt` and `file3.txt` would have the same bytes). However this is not the case! Observe:
 
@@ -260,7 +260,7 @@ UnicodeEncodeError: 'ascii' codec can't encode characters in position 3-4: ordin
 ```
 String `a` can be encoded using both ASCII and UTF-8 as expected. Also as expected, encoding string `b` using ASCII results in an error since neither `Ŕ` nor `Ŗ` are ASCII-compatible. And encoding string `b` using UTF-8 renders a string that is a mix of ASCII characters (what python 2 can handle) and the hex representations of the non-ASCII characters python 2 couldn't handle.
 
-A unicode string in python 2 is just a combination of ASCII-compatible characters and the string representations of code points for the non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
+A unicode string in python 2 is just a combination of ASCII-compatible characters and code points (as strings) for the non-ASCII compatible characters. What about python 3? Python 3 got rid of the distinction between a regular string (e.g., `abc`) and a unicode string (e.g., `u'abc'`), and just has regular strings without any prefixes. Does this mean there are no unicode strings in python 3?
 
 Let's find out using Python 3.5.2:
 ```python
@@ -287,4 +287,4 @@ b'abc\\u0154\\u0156'
 
 ---
 
-Now readers should have a good idea of what Base64 is and how it works, the difference between encoding and encryption, and what python means by unicode strings. That was a lot to get through! But that is indicative of the complexities and overloaded terms surrounding what an "encoding" is. Hopefully the next time someone talks about needing to encode a string in Unicode or how their passwords are secure because they're encoded in Base64 you can set them straight.
+Now readers should have a good idea of what Base64 is and how it works, the difference between encoding and encryption, and what python means by unicode strings. That was a lot to get through! But that is indicative of the complexities and overloaded terms surrounding what an "encoding" is. Hopefully the next time someone talks about needing to encode a string in Unicode, or how their passwords are secure because they're encoded in Base64, you can set them straight.
