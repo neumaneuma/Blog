@@ -1,0 +1,15 @@
+Okay, I admit it. This was a clickbait title. So sue me. I don't actually hate refactoring. What I really hate, and what will be the topic of this post, is procrastinating on refactoring.
+
+How does this phenomenon arise? Well, it's pretty simple. We as developers get lazy. For example, suppose someone points out in a code review that we could DRY some code and thereby remove duplicated effort. You respond by saying there's no time for that now and that we'll add it to the technical debt in our backlog. Or say that you settle for a few TODO comments instead of actually doing the due diligence to write clean code. It will get done eventually after all.
+
+Wrong! These things rarely get done in practice once they've been relegated to the purgatory known as, "to be done later." There's always more important work to be done than humble ol' refactoring. I've worked for 2 different employers since graduating college and I honestly cannot think of a single instance where cleaning up technical debt and refactoring code actually got prioritized in a sprint.
+
+And to be fair, I'm not arguing that refactoring is always more important than writing new features. I'm not even arguing that it's more important most of the time. At best you could say that, occasionally, the benefits probably outweigh the costs for some specific instance. Which, as the clever reader that you are will surmise, is hardly a standing ovation for refactoring. So what is the point I'm trying to make?
+
+Stop being lazy! Stop procrastinating! The correct answer to the first hypothetical scenario from above should have been, "I'll DRY the code in my upcoming code review," and the correct way to handle the second scenario is to not leave TODOs littered in your code unless absolutely necessary.
+
+Legacy TODOs are so obnoxious. No one on the team knows what they mean anymore and are therefore afraid to remove it in case it could be useful. So what you end up with is just training developers to ignore TODOs. Which is not a good habit to ingrain.
+
+Similarly, technical debt cleanup in the backlog is always relegated to being a second class citizen. It's very hard to justify "improving code quality" over "delivering features that earn money."
+
+Fortunately there's an easy solution to all this. Take pride in writing clean code. Do your due diligence to ensure you follow the [~~boy~~ person scout rule](https://medium.com/@biratkirat/step-8-the-boy-scout-rule-robert-c-martin-uncle-bob-9ac839778385). Taking an extra hour in the sprint to refactor code to be maintainable could mean you won't have to spend 15 hours a year from now to refactor the bigger mess that your procrastination induced. Or perhaps, as is more likely, you never get around to refactoring it and any work involving that gross, legacy part of the codebase just becomes more and more difficult as time goes on.
